@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+    />
+    <title>Roblox Datastore Editor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Custom Title Bar -->
+    <div class="title-bar">
+      <div class="title-bar-drag">
+        <div class="title-bar-icon">
+          <svg viewBox="0 0 100 100" width="20" height="20">
+            <polygon fill="#e74c3c" points="25,5 95,25 75,95 5,75" />
+            <polygon fill="white" points="40,30 70,38 62,68 32,60" />
+          </svg>
+        </div>
+        <span class="title-bar-text">Roblox Datastore Editor</span>
+      </div>
+      <div class="title-bar-controls">
+        <button class="title-bar-btn" id="btn-minimize">
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <rect fill="currentColor" width="10" height="1" x="1" y="6" />
+          </svg>
+        </button>
+        <button class="title-bar-btn" id="btn-maximize">
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <rect
+              stroke="currentColor"
+              fill="none"
+              width="9"
+              height="9"
+              x="1.5"
+              y="1.5"
+            />
+          </svg>
+        </button>
+        <button class="title-bar-btn btn-close" id="btn-close">
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <path
+              stroke="currentColor"
+              stroke-width="1.5"
+              d="M1 1l10 10M11 1L1 11"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="app-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+            <svg viewBox="0 0 100 100" width="32" height="32">
+              <polygon fill="#e74c3c" points="25,5 95,25 75,95 5,75" />
+              <polygon fill="white" points="40,30 70,38 62,68 32,60" />
+            </svg>
+            <span>Datastore Editor</span>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-tab="connection">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+              />
+            </svg>
+            <span>Connection</span>
+          </button>
+          <button class="nav-item" data-tab="datastores" id="nav-datastores">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <ellipse cx="12" cy="5" rx="9" ry="3" />
+              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+            </svg>
+            <span>Datastores</span>
+          </button>
+          <button class="nav-item" data-tab="editor" id="nav-editor">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+            <span>Editor</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="connection-status" id="connection-status">
+            <span class="status-dot disconnected"></span>
+            <span class="status-text">Not Connected</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Connection Tab -->
+        <div class="tab-content active" id="tab-connection">
+          <div class="page-header">
+            <h1>API Connection</h1>
+            <p class="page-subtitle">
+              Connect to Roblox Open Cloud to manage your datastores
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>API Configuration</h2>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="api-key">API Key</label>
+                <div class="input-with-icon">
+                  <input
+                    type="password"
+                    id="api-key"
+                    placeholder="Enter your Open Cloud API key"
+                    autocomplete="off"
+                  />
+                  <button
+                    class="icon-btn"
+                    id="toggle-api-key"
+                    title="Show/Hide"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </button>
+                </div>
+                <span class="form-hint"
+                  >Get your API key from
+                  <a href="#" id="open-cloud-link">Creator Dashboard</a></span
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="universe-id">Universe ID</label>
+                <input
+                  type="text"
+                  id="universe-id"
+                  placeholder="Enter your game's Universe ID"
+                />
+                <span class="form-hint"
+                  >Found in your game settings on Roblox</span
+                >
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-primary" id="btn-validate">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                  Validate Connection
+                </button>
+                <button class="btn btn-secondary" id="btn-clear">Clear</button>
+              </div>
+
+              <div
+                class="alert"
+                id="connection-alert"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>How to Get Your API Key</h2>
+            </div>
+            <div class="card-body">
+              <ol class="instructions-list">
+                <li>
+                  Go to <strong>Creator Dashboard</strong> →
+                  <strong>Credentials</strong>
+                </li>
+                <li>Click <strong>Create API Key</strong></li>
+                <li>
+                  Name your key and select
+                  <strong>Datastores</strong> permission
+                </li>
+                <li>Add your Universe ID to the allowed experiences</li>
+                <li>
+                  Set appropriate IP restrictions (or allow all with 0.0.0.0/0)
+                </li>
+                <li>Copy and paste the generated key above</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datastores Tab -->
+        <div class="tab-content" id="tab-datastores">
+          <div class="page-header">
+            <h1>Datastores</h1>
+            <p class="page-subtitle">
+              Browse and manage your game's datastores
+            </p>
+          </div>
+
+          <div class="toolbar">
+            <button class="btn btn-primary" id="btn-refresh-datastores">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M23 4v6h-6M1 20v-6h6" />
+                <path
+                  d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                />
+              </svg>
+              Refresh
+            </button>
+            <div class="search-box">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              <input
+                type="text"
+                id="datastore-search"
+                placeholder="Search datastores..."
+              />
+            </div>
+          </div>
+
+          <div class="datastores-grid" id="datastores-grid">
+            <div class="empty-state" id="datastores-empty">
+              <svg
+                viewBox="0 0 24 24"
+                width="64"
+                height="64"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1"
+              >
+                <ellipse cx="12" cy="5" rx="9" ry="3" />
+                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+              </svg>
+              <h3>No Datastores Found</h3>
+              <p>Connect to your game to view datastores</p>
+            </div>
+          </div>
+
+          <!-- Entries Panel -->
+          <div class="entries-panel" id="entries-panel" style="display: none">
+            <div class="panel-header">
+              <button class="btn btn-icon" id="btn-back-datastores">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <h2 id="current-datastore-name">Datastore Name</h2>
+              <div class="panel-actions">
+                <button class="btn btn-primary" id="btn-add-entry">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 8v8M8 12h8" />
+                  </svg>
+                  Add Entry
+                </button>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="search-box">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input
+                  type="text"
+                  id="entry-search"
+                  placeholder="Search or filter by prefix..."
+                />
+              </div>
+              <div class="form-group inline">
+                <label for="entry-scope">Scope:</label>
+                <input
+                  type="text"
+                  id="entry-scope"
+                  placeholder="global"
+                  style="width: 120px"
+                />
+              </div>
+            </div>
+
+            <div class="entries-table-container">
+              <table class="entries-table" id="entries-table">
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Scope</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="entries-tbody"></tbody>
+              </table>
+              <div class="empty-state" id="entries-empty" style="display: none">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="64"
+                  height="64"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                <h3>No Entries Found</h3>
+                <p>This datastore is empty or no entries match your search</p>
+              </div>
+            </div>
+
+            <div
+              class="pagination"
+              id="entries-pagination"
+              style="display: none"
+            >
+              <button class="btn btn-secondary" id="btn-load-more-entries">
+                Load More
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Editor Tab -->
+        <div class="tab-content" id="tab-editor">
+          <div class="page-header">
+            <h1>Entry Editor</h1>
+            <p class="page-subtitle" id="editor-subtitle">
+              Edit datastore entries with JSON support
+            </p>
+          </div>
+
+          <div class="editor-container">
+            <div class="card">
+              <div class="card-header">
+                <h2>Entry Details</h2>
+              </div>
+              <div class="card-body">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="editor-datastore">Datastore Name</label>
+                    <div class="select-wrapper">
+                      <select id="editor-datastore">
+                        <option value="">Select a datastore...</option>
+                      </select>
+                      <input
+                        type="text"
+                        id="editor-datastore-custom"
+                        placeholder="Or type custom name..."
+                        style="display: none"
+                      />
+                      <button
+                        class="btn btn-sm btn-toggle-custom"
+                        id="btn-toggle-datastore-input"
+                        title="Toggle custom input"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="14"
+                          height="14"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                          />
+                          <path
+                            d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="editor-key">Entry Key</label>
+                    <input
+                      type="text"
+                      id="editor-key"
+                      placeholder="Entry key"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="editor-scope">Scope</label>
+                    <input
+                      type="text"
+                      id="editor-scope"
+                      placeholder="global"
+                      value="global"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Value (JSON)</label>
+                  <div class="editor-toolbar">
+                    <button class="btn btn-sm" id="btn-format-json">
+                      Format JSON
+                    </button>
+                    <button class="btn btn-sm" id="btn-minify-json">
+                      Minify
+                    </button>
+                    <span class="json-status" id="json-status"></span>
+                  </div>
+                  <div class="code-editor-container">
+                    <div class="code-editor" id="code-editor">
+                      <div class="line-numbers" id="line-numbers"></div>
+                      <div class="editor-wrapper">
+                        <pre
+                          class="syntax-highlight"
+                          id="syntax-highlight"
+                          aria-hidden="true"
+                        ></pre>
+                        <textarea
+                          id="editor-value"
+                          placeholder='{"key": "value"}'
+                          spellcheck="false"
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="editor-userids"
+                    >User IDs (comma-separated, optional)</label
+                  >
+                  <input
+                    type="text"
+                    id="editor-userids"
+                    placeholder="12345, 67890"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="editor-attributes"
+                    >Attributes (JSON, optional)</label
+                  >
+                  <textarea
+                    id="editor-attributes"
+                    placeholder='{"attribute": "value"}'
+                    rows="3"
+                  ></textarea>
+                </div>
+
+                <div class="form-actions">
+                  <button class="btn btn-primary" id="btn-save-entry">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                      />
+                      <polyline points="17 21 17 13 7 13 7 21" />
+                      <polyline points="7 3 7 8 15 8" />
+                    </svg>
+                    Save Entry
+                  </button>
+                  <button class="btn btn-secondary" id="btn-load-entry">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Load Entry
+                  </button>
+                  <button class="btn btn-danger" id="btn-delete-entry">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polyline points="3 6 5 6 21 6" />
+                      <path
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      />
+                    </svg>
+                    Delete
+                  </button>
+                  <button class="btn btn-secondary" id="btn-clear-editor">
+                    Clear
+                  </button>
+                </div>
+
+                <div
+                  class="alert"
+                  id="editor-alert"
+                  style="display: none"
+                ></div>
+
+                <div
+                  class="metadata-panel"
+                  id="metadata-panel"
+                  style="display: none"
+                >
+                  <h3>Entry Metadata</h3>
+                  <div class="metadata-grid" id="metadata-grid"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Add Entry Modal -->
+    <div class="modal" id="add-entry-modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add New Entry</h2>
+          <button class="btn btn-icon modal-close">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="new-entry-key">Entry Key</label>
+            <input
+              type="text"
+              id="new-entry-key"
+              placeholder="Enter key name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="new-entry-value">Initial Value (JSON)</label>
+            <textarea
+              id="new-entry-value"
+              placeholder='{"key": "value"}'
+              rows="5"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Cancel</button>
+          <button class="btn btn-primary" id="btn-confirm-add-entry">
+            Add Entry
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="modal" id="delete-modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Confirm Delete</h2>
+          <button class="btn btn-icon modal-close">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Are you sure you want to delete the entry "<span
+              id="delete-entry-name"
+            ></span
+            >"?
+          </p>
+          <p class="warning-text">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Cancel</button>
+          <button class="btn btn-danger" id="btn-confirm-delete">
+            Delete Entry
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="loading-spinner"></div>
+      <span class="loading-text">Loading...</span>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
