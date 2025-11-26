@@ -129,6 +129,37 @@ const elements = {
   ),
   btnSnapshotDatastores: document.getElementById('btn-snapshot-datastores'),
 
+  // Messaging
+  messagingTopicSelect: document.getElementById('messaging-topic-select'),
+  messagingTopic: document.getElementById('messaging-topic'),
+  btnToggleTopicInput: document.getElementById('btn-toggle-topic-input'),
+  btnAddTopic: document.getElementById('btn-add-topic'),
+  savedTopicsList: document.getElementById('saved-topics-list'),
+  topicsEmpty: document.getElementById('topics-empty'),
+  messagingContent: document.getElementById('messaging-content'),
+  messageCharCount: document.getElementById('message-char-count'),
+  btnSendMessage: document.getElementById('btn-send-message'),
+  btnClearMessage: document.getElementById('btn-clear-message'),
+  messagingAlert: document.getElementById('messaging-alert'),
+  messageHistory: document.getElementById('message-history'),
+  historyEmpty: document.getElementById('history-empty'),
+  btnClearHistory: document.getElementById('btn-clear-history'),
+
+  // Add Topic Modal
+  modalAddTopic: document.getElementById('modal-add-topic'),
+  addTopicInput: document.getElementById('add-topic-input'),
+  btnConfirmAddTopic: document.getElementById('btn-confirm-add-topic'),
+
+  // Permissions
+  permissionsCard: document.getElementById('permissions-card'),
+  permissionsList: document.getElementById('permissions-list'),
+  btnRecheckPermissions: document.getElementById('btn-recheck-permissions'),
+  permDatastoresRead: document.getElementById('perm-datastores-read'),
+  permDatastoresWrite: document.getElementById('perm-datastores-write'),
+  permDatastoresDelete: document.getElementById('perm-datastores-delete'),
+  permDatastoresList: document.getElementById('perm-datastores-list'),
+  permMessaging: document.getElementById('perm-messaging'),
+
   // Loading
   loadingOverlay: document.getElementById('loading-overlay'),
   loadingText: document.querySelector('.loading-text'),
@@ -335,10 +366,17 @@ elements.btnValidate.addEventListener('click', async () => {
     updateConnectionStatus(true)
     showAlert(elements.connectionAlert, 'success', result.message)
     showToast('success', 'Connected!', 'You can now browse datastores')
+
+    // Check permissions after successful connection
+    checkAllPermissions()
   } else {
     updateConnectionStatus(false)
     showAlert(elements.connectionAlert, 'error', result.message)
     showToast('error', 'Connection Failed', result.message)
+    // Hide permissions card on failed connection
+    if (elements.permissionsCard) {
+      elements.permissionsCard.style.display = 'none'
+    }
   }
 })
 
@@ -352,7 +390,115 @@ elements.btnClear.addEventListener('click', () => {
   hideAlert(elements.connectionAlert)
   localStorage.removeItem('roblox_ds_apiKey')
   localStorage.removeItem('roblox_ds_universeId')
+  // Hide permissions card
+  if (elements.permissionsCard) {
+    elements.permissionsCard.style.display = 'none'
+  }
 })
+
+// ============ Permission Checking ============
+
+function updatePermissionItem(element, status) {
+  if (!element) return
+
+  const iconSpan = element.querySelector('.permission-icon')
+  const statusSpan = element.querySelector('.permission-status')
+
+  // Remove existing classes
+  iconSpan.className = 'permission-icon'
+
+  if (status === true) {
+    iconSpan.classList.add('granted')
+    iconSpan.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>`
+    statusSpan.textContent = 'Granted'
+    statusSpan.className = 'permission-status granted'
+  } else if (status === false) {
+    iconSpan.classList.add('denied')
+    iconSpan.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M15 9l-6 6M9 9l6 6"/>
+    </svg>`
+    statusSpan.textContent = 'Not Granted'
+    statusSpan.className = 'permission-status denied'
+  } else {
+    // Unknown status
+    iconSpan.classList.add('unknown')
+    iconSpan.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>`
+    statusSpan.textContent = 'Cannot Verify'
+    statusSpan.className = 'permission-status unknown'
+  }
+}
+
+function resetPermissionItems() {
+  const items = [
+    elements.permDatastoresRead,
+    elements.permDatastoresWrite,
+    elements.permDatastoresDelete,
+    elements.permDatastoresList,
+    elements.permMessaging,
+  ]
+
+  items.forEach((item) => {
+    if (!item) return
+    const iconSpan = item.querySelector('.permission-icon')
+    const statusSpan = item.querySelector('.permission-status')
+    iconSpan.className = 'permission-icon pending'
+    iconSpan.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+    </svg>`
+    statusSpan.textContent = 'Checking...'
+    statusSpan.className = 'permission-status'
+  })
+}
+
+async function checkAllPermissions() {
+  if (!state.isConnected) return
+
+  // Show permissions card
+  if (elements.permissionsCard) {
+    elements.permissionsCard.style.display = 'block'
+  }
+
+  // Reset all to pending
+  resetPermissionItems()
+
+  // Check each permission in parallel
+  const [listResult, readResult, writeResult, deleteResult, messagingResult] =
+    await Promise.all([
+      window.electronAPI.checkPermissionList(state.apiKey, state.universeId),
+      window.electronAPI.checkPermissionRead(state.apiKey, state.universeId),
+      window.electronAPI.checkPermissionWrite(state.apiKey, state.universeId),
+      window.electronAPI.checkPermissionDelete(state.apiKey, state.universeId),
+      window.electronAPI.checkPermissionMessaging(
+        state.apiKey,
+        state.universeId
+      ),
+    ])
+
+  // Update UI
+  updatePermissionItem(elements.permDatastoresList, listResult.hasPermission)
+  updatePermissionItem(elements.permDatastoresRead, readResult.hasPermission)
+  updatePermissionItem(elements.permDatastoresWrite, writeResult.hasPermission)
+  updatePermissionItem(
+    elements.permDatastoresDelete,
+    deleteResult.hasPermission
+  )
+  updatePermissionItem(elements.permMessaging, messagingResult.hasPermission)
+}
+
+// Recheck permissions button
+if (elements.btnRecheckPermissions) {
+  elements.btnRecheckPermissions.addEventListener('click', () => {
+    checkAllPermissions()
+  })
+}
 
 // ============ Datastores Tab ============
 
@@ -1735,6 +1881,519 @@ function updateJsonStatus() {
   }
 }
 
+// ============ Messaging Service ============
+
+// Message history state
+let messageHistory = []
+
+// Saved topics state
+let savedTopics = []
+
+function loadMessageHistory() {
+  try {
+    const raw = localStorage.getItem('messageHistory')
+    if (raw) messageHistory = JSON.parse(raw)
+  } catch {
+    messageHistory = []
+  }
+}
+
+function saveMessageHistory() {
+  try {
+    localStorage.setItem('messageHistory', JSON.stringify(messageHistory))
+  } catch {}
+}
+
+function loadSavedTopics() {
+  try {
+    const raw = localStorage.getItem('savedTopics')
+    if (raw) savedTopics = JSON.parse(raw)
+  } catch {
+    savedTopics = []
+  }
+}
+
+function saveSavedTopics() {
+  try {
+    localStorage.setItem('savedTopics', JSON.stringify(savedTopics))
+  } catch {}
+}
+
+function renderSavedTopics() {
+  if (!elements.savedTopicsList) return
+
+  // Update dropdown
+  updateTopicDropdown()
+
+  if (savedTopics.length === 0) {
+    if (elements.topicsEmpty) elements.topicsEmpty.style.display = 'flex'
+    // Remove any topic items
+    const items = elements.savedTopicsList.querySelectorAll('.saved-topic-item')
+    items.forEach((item) => item.remove())
+    return
+  }
+
+  if (elements.topicsEmpty) elements.topicsEmpty.style.display = 'none'
+
+  // Clear existing items
+  const existingItems =
+    elements.savedTopicsList.querySelectorAll('.saved-topic-item')
+  existingItems.forEach((item) => item.remove())
+
+  // Render topics
+  savedTopics.forEach((topic, index) => {
+    const item = document.createElement('div')
+    item.className = 'saved-topic-item'
+    item.innerHTML = `
+      <span class="topic-name">${escapeHtml(topic)}</span>
+      <div class="topic-actions">
+        <button class="btn btn-sm btn-icon btn-use-topic" title="Use this topic" data-index="${index}">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+        <button class="btn btn-sm btn-icon btn-danger btn-delete-topic" title="Delete topic" data-index="${index}">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+    `
+
+    // Use topic button
+    item.querySelector('.btn-use-topic').addEventListener('click', (e) => {
+      e.stopPropagation()
+      selectTopic(topic)
+    })
+
+    // Delete topic button
+    item.querySelector('.btn-delete-topic').addEventListener('click', (e) => {
+      e.stopPropagation()
+      deleteTopic(index)
+    })
+
+    // Click on item to select
+    item.addEventListener('click', () => {
+      selectTopic(topic)
+    })
+
+    elements.savedTopicsList.appendChild(item)
+  })
+}
+
+function updateTopicDropdown() {
+  if (!elements.messagingTopicSelect) return
+
+  // Clear existing options except first two
+  while (elements.messagingTopicSelect.options.length > 2) {
+    elements.messagingTopicSelect.remove(2)
+  }
+
+  // Add saved topics
+  savedTopics.forEach((topic) => {
+    const option = document.createElement('option')
+    option.value = topic
+    option.textContent = topic
+    elements.messagingTopicSelect.appendChild(option)
+  })
+}
+
+function selectTopic(topic) {
+  // Switch to dropdown mode and select the topic
+  setTopicInputMode('dropdown')
+
+  if (elements.messagingTopicSelect) {
+    // Check if topic exists in dropdown
+    const options = Array.from(elements.messagingTopicSelect.options)
+    const exists = options.some((opt) => opt.value === topic)
+
+    if (exists) {
+      elements.messagingTopicSelect.value = topic
+    } else {
+      // Topic not in dropdown, switch to custom mode
+      setTopicInputMode('custom')
+      if (elements.messagingTopic) {
+        elements.messagingTopic.value = topic
+      }
+    }
+  }
+
+  // Also set the hidden input
+  if (elements.messagingTopic) {
+    elements.messagingTopic.value = topic
+  }
+
+  showToast('success', 'Topic Selected', `"${topic}" is ready to use`)
+}
+
+function addTopic(topicName) {
+  const topic = topicName.trim()
+  if (!topic) {
+    showToast('error', 'Invalid Topic', 'Please enter a topic name')
+    return false
+  }
+  if (topic.length > 80) {
+    showToast(
+      'error',
+      'Topic Too Long',
+      'Topic name must be 80 characters or less'
+    )
+    return false
+  }
+  if (savedTopics.includes(topic)) {
+    showToast('warning', 'Topic Exists', 'This topic is already saved')
+    return false
+  }
+
+  savedTopics.push(topic)
+  saveSavedTopics()
+  renderSavedTopics()
+  showToast('success', 'Topic Added', `"${topic}" has been saved`)
+  return true
+}
+
+function deleteTopic(index) {
+  const topic = savedTopics[index]
+  savedTopics.splice(index, 1)
+  saveSavedTopics()
+  renderSavedTopics()
+  showToast('success', 'Topic Deleted', `"${topic}" has been removed`)
+}
+
+function getSelectedTopic() {
+  // If custom input is active (visible), use that
+  if (elements.messagingTopic?.classList.contains('active')) {
+    return elements.messagingTopic.value.trim()
+  }
+  // Otherwise use dropdown value (but not special values)
+  if (elements.messagingTopicSelect) {
+    const val = elements.messagingTopicSelect.value
+    if (val && val !== '__custom__') {
+      return val
+    }
+  }
+  // Fallback to text input value
+  return elements.messagingTopic?.value.trim() || ''
+}
+
+// Load saved topics on startup
+loadSavedTopics()
+
+// Topic dropdown change
+if (elements.messagingTopicSelect) {
+  elements.messagingTopicSelect.addEventListener('change', (e) => {
+    const value = e.target.value
+    if (value === '__custom__') {
+      // Show custom input, hide dropdown
+      setTopicInputMode('custom')
+    } else if (value) {
+      // Set the value in hidden input for getSelectedTopic
+      if (elements.messagingTopic) {
+        elements.messagingTopic.value = value
+      }
+    }
+  })
+}
+
+// Toggle topic input button
+if (elements.btnToggleTopicInput) {
+  elements.btnToggleTopicInput.addEventListener('click', () => {
+    const isCustomMode = elements.messagingTopic?.classList.contains('active')
+    setTopicInputMode(isCustomMode ? 'dropdown' : 'custom')
+  })
+}
+
+function setTopicInputMode(mode) {
+  const selectContainer = document.getElementById('topic-select-container')
+
+  if (mode === 'custom') {
+    // Show custom input, hide dropdown
+    if (selectContainer) selectContainer.style.display = 'none'
+    if (elements.messagingTopic) {
+      elements.messagingTopic.classList.add('active')
+      elements.messagingTopic.focus()
+    }
+    if (elements.btnToggleTopicInput) {
+      elements.btnToggleTopicInput.classList.add('active')
+      elements.btnToggleTopicInput.title = 'Switch to dropdown'
+    }
+  } else {
+    // Show dropdown, hide custom input
+    if (selectContainer) selectContainer.style.display = 'block'
+    if (elements.messagingTopic) {
+      elements.messagingTopic.classList.remove('active')
+    }
+    if (elements.btnToggleTopicInput) {
+      elements.btnToggleTopicInput.classList.remove('active')
+      elements.btnToggleTopicInput.title = 'Switch to manual input'
+    }
+    if (elements.messagingTopicSelect) {
+      elements.messagingTopicSelect.value = ''
+    }
+  }
+}
+
+// Add topic button - opens modal
+console.log('btnAddTopic element:', elements.btnAddTopic)
+if (elements.btnAddTopic) {
+  console.log('Attaching click handler to btnAddTopic')
+  elements.btnAddTopic.addEventListener('click', () => {
+    console.log('Add Topic button clicked!')
+    showAddTopicModal()
+  })
+} else {
+  console.error('btnAddTopic element not found!')
+}
+
+// Add Topic Modal functions
+function showAddTopicModal() {
+  if (elements.modalAddTopic) {
+    elements.modalAddTopic.classList.add('active')
+    if (elements.addTopicInput) {
+      elements.addTopicInput.value = ''
+      elements.addTopicInput.focus()
+    }
+  }
+}
+
+function hideAddTopicModal() {
+  if (elements.modalAddTopic) {
+    elements.modalAddTopic.classList.remove('active')
+  }
+}
+
+// Confirm add topic button
+if (elements.btnConfirmAddTopic) {
+  elements.btnConfirmAddTopic.addEventListener('click', () => {
+    const topic = elements.addTopicInput?.value
+    if (topic && topic.trim()) {
+      addTopic(topic)
+      hideAddTopicModal()
+    } else {
+      showToast('error', 'Invalid Topic', 'Please enter a topic name')
+    }
+  })
+}
+
+// Close modal on close button or overlay click
+if (elements.modalAddTopic) {
+  elements.modalAddTopic.querySelectorAll('.modal-close').forEach((btn) => {
+    btn.addEventListener('click', hideAddTopicModal)
+  })
+  elements.modalAddTopic.addEventListener('click', (e) => {
+    if (e.target === elements.modalAddTopic) {
+      hideAddTopicModal()
+    }
+  })
+  // Submit on Enter key
+  if (elements.addTopicInput) {
+    elements.addTopicInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        elements.btnConfirmAddTopic?.click()
+      }
+    })
+  }
+}
+
+function renderMessageHistory() {
+  if (!elements.messageHistory) return
+
+  if (messageHistory.length === 0) {
+    elements.historyEmpty.style.display = 'flex'
+    // Remove any history items
+    const items = elements.messageHistory.querySelectorAll('.history-item')
+    items.forEach((item) => item.remove())
+    return
+  }
+
+  elements.historyEmpty.style.display = 'none'
+
+  // Clear existing items
+  const existingItems =
+    elements.messageHistory.querySelectorAll('.history-item')
+  existingItems.forEach((item) => item.remove())
+
+  // Render history (most recent first)
+  messageHistory
+    .slice()
+    .reverse()
+    .forEach((entry) => {
+      const item = document.createElement('div')
+      item.className = `history-item ${entry.success ? 'success' : 'failed'}`
+      item.innerHTML = `
+        <div class="history-item-header">
+          <span class="history-topic">${escapeHtml(entry.topic)}</span>
+          <span class="history-time">${new Date(
+            entry.timestamp
+          ).toLocaleString()}</span>
+          <span class="history-status ${entry.success ? 'success' : 'failed'}">
+            ${entry.success ? '✓ Sent' : '✗ Failed'}
+          </span>
+        </div>
+        <div class="history-message">${escapeHtml(
+          entry.message.length > 100
+            ? entry.message.substring(0, 100) + '...'
+            : entry.message
+        )}</div>
+        ${
+          entry.error
+            ? `<div class="history-error">${escapeHtml(entry.error)}</div>`
+            : ''
+        }
+      `
+
+      // Click to resend
+      item.addEventListener('click', () => {
+        selectTopic(entry.topic)
+        elements.messagingContent.value = entry.message
+        updateMessageCharCount()
+        showToast('success', 'Message Loaded', 'You can edit and resend')
+      })
+
+      elements.messageHistory.appendChild(item)
+    })
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div')
+  div.textContent = text
+  return div.innerHTML
+}
+
+function updateMessageCharCount() {
+  const count = (elements.messagingContent?.value || '').length
+  if (elements.messageCharCount) {
+    elements.messageCharCount.textContent = `${count} / 1024`
+    elements.messageCharCount.className =
+      count > 1024 ? 'char-count over' : 'char-count'
+  }
+}
+
+// Load message history on startup
+loadMessageHistory()
+
+// Message content character count
+if (elements.messagingContent) {
+  elements.messagingContent.addEventListener('input', updateMessageCharCount)
+}
+
+// Clear message form
+if (elements.btnClearMessage) {
+  elements.btnClearMessage.addEventListener('click', () => {
+    // Reset to dropdown mode
+    setTopicInputMode('dropdown')
+    if (elements.messagingTopic) {
+      elements.messagingTopic.value = ''
+    }
+    elements.messagingContent.value = ''
+    updateMessageCharCount()
+    hideAlert(elements.messagingAlert)
+  })
+}
+
+// Clear message history
+if (elements.btnClearHistory) {
+  elements.btnClearHistory.addEventListener('click', () => {
+    messageHistory = []
+    saveMessageHistory()
+    renderMessageHistory()
+    showToast('success', 'History Cleared', 'Message history has been cleared')
+  })
+}
+
+// Send message
+if (elements.btnSendMessage) {
+  elements.btnSendMessage.addEventListener('click', async () => {
+    if (!state.isConnected) {
+      showToast('warning', 'Not Connected', 'Please connect to a game first')
+      return
+    }
+
+    const topic = getSelectedTopic()
+    const message = elements.messagingContent.value
+
+    if (!topic) {
+      showAlert(
+        elements.messagingAlert,
+        'error',
+        'Please select or enter a topic name'
+      )
+      return
+    }
+
+    if (topic.length > 80) {
+      showAlert(
+        elements.messagingAlert,
+        'error',
+        'Topic name must be 80 characters or less'
+      )
+      return
+    }
+
+    if (!message) {
+      showAlert(
+        elements.messagingAlert,
+        'error',
+        'Please enter a message to send'
+      )
+      return
+    }
+
+    if (message.length > 1024) {
+      showAlert(
+        elements.messagingAlert,
+        'error',
+        'Message must be 1024 characters or less'
+      )
+      return
+    }
+
+    hideAlert(elements.messagingAlert)
+    showLoading('Sending message...')
+
+    const result = await window.electronAPI.publishMessage(
+      state.apiKey,
+      state.universeId,
+      topic,
+      message
+    )
+
+    hideLoading()
+
+    // Add to history
+    messageHistory.push({
+      topic,
+      message,
+      timestamp: Date.now(),
+      success: result.success,
+      error: result.success ? null : result.message,
+    })
+
+    // Keep only last 50 messages
+    if (messageHistory.length > 50) {
+      messageHistory = messageHistory.slice(-50)
+    }
+
+    saveMessageHistory()
+    renderMessageHistory()
+
+    if (result.success) {
+      showToast('success', 'Message Sent', `Message published to "${topic}"`)
+      showAlert(
+        elements.messagingAlert,
+        'success',
+        `Message successfully sent to topic "${topic}"`
+      )
+    } else {
+      showToast('error', 'Send Failed', result.message)
+      showAlert(elements.messagingAlert, 'error', result.message)
+    }
+  })
+}
+
 // ============ Modal Close Handlers ============
 
 document.querySelectorAll('.modal-close, .modal-backdrop').forEach((el) => {
@@ -1751,6 +2410,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCredentials()
   updateLineNumbers()
   updateSyntaxHighlight()
+  renderMessageHistory()
+  renderSavedTopics()
 
   // Auto-validate if credentials exist
   if (state.apiKey && state.universeId) {

@@ -124,6 +124,31 @@ contextBridge.exposeInMainWorld('electronAPI', {
       universeId,
     }),
 
+  // Messaging Service
+  publishMessage: (apiKey, universeId, topic, message) =>
+    ipcRenderer.invoke('publish-message', {
+      apiKey,
+      universeId,
+      topic,
+      message,
+    }),
+
+  // Permission checking
+  checkPermissionList: (apiKey, universeId) =>
+    ipcRenderer.invoke('check-permission-list', { apiKey, universeId }),
+
+  checkPermissionRead: (apiKey, universeId) =>
+    ipcRenderer.invoke('check-permission-read', { apiKey, universeId }),
+
+  checkPermissionWrite: (apiKey, universeId) =>
+    ipcRenderer.invoke('check-permission-write', { apiKey, universeId }),
+
+  checkPermissionDelete: (apiKey, universeId) =>
+    ipcRenderer.invoke('check-permission-delete', { apiKey, universeId }),
+
+  checkPermissionMessaging: (apiKey, universeId) =>
+    ipcRenderer.invoke('check-permission-messaging', { apiKey, universeId }),
+
   // Window controls
   minimizeWindow: () => ipcRenderer.invoke('window-minimize'),
   maximizeWindow: () => ipcRenderer.invoke('window-maximize'),

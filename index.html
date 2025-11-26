@@ -114,6 +114,21 @@
             </svg>
             <span>Editor</span>
           </button>
+          <button class="nav-item" data-tab="messaging" id="nav-messaging">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+              />
+            </svg>
+            <span>Messaging</span>
+          </button>
         </nav>
 
         <div class="sidebar-footer">
@@ -208,6 +223,136 @@
                 id="connection-alert"
                 style="display: none"
               ></div>
+            </div>
+          </div>
+
+          <div class="card" id="permissions-card" style="display: none">
+            <div class="card-header">
+              <h2>API Permissions</h2>
+              <button
+                class="btn btn-sm btn-secondary"
+                id="btn-recheck-permissions"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M23 4v6h-6M1 20v-6h6" />
+                  <path
+                    d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                  />
+                </svg>
+                Recheck
+              </button>
+            </div>
+            <div class="card-body">
+              <p class="permissions-intro">
+                Your API key has the following permissions:
+              </p>
+              <div class="permissions-list" id="permissions-list">
+                <div class="permission-item" id="perm-datastores-read">
+                  <span class="permission-icon pending">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                  </span>
+                  <span class="permission-name">Datastores - Read</span>
+                  <span class="permission-status">Checking...</span>
+                </div>
+                <div class="permission-item" id="perm-datastores-write">
+                  <span class="permission-icon pending">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                  </span>
+                  <span class="permission-name">Datastores - Write</span>
+                  <span class="permission-status">Checking...</span>
+                </div>
+                <div class="permission-item" id="perm-datastores-delete">
+                  <span class="permission-icon pending">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                  </span>
+                  <span class="permission-name">Datastores - Delete</span>
+                  <span class="permission-status">Checking...</span>
+                </div>
+                <div class="permission-item" id="perm-datastores-list">
+                  <span class="permission-icon pending">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                  </span>
+                  <span class="permission-name">Datastores - List</span>
+                  <span class="permission-status">Checking...</span>
+                </div>
+                <div class="permission-item" id="perm-messaging">
+                  <span class="permission-icon pending">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                  </span>
+                  <span class="permission-name"
+                    >Messaging Service - Publish</span
+                  >
+                  <span class="permission-status">Checking...</span>
+                </div>
+              </div>
+              <p class="permissions-hint">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                Missing permissions? Edit your API key in the
+                <a href="#" id="creator-dashboard-link">Creator Dashboard</a>
+              </p>
             </div>
           </div>
 
@@ -624,6 +769,213 @@
             </div>
           </div>
         </div>
+
+        <!-- Messaging Tab -->
+        <div class="tab-content" id="tab-messaging">
+          <div class="page-header">
+            <h1>Messaging Service</h1>
+            <p class="page-subtitle">
+              Send cross-server messages to your game's topics
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Saved Topics</h2>
+              <button class="btn btn-sm btn-primary" id="btn-add-topic">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add Topic
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="saved-topics-list" id="saved-topics-list">
+                <div class="empty-state" id="topics-empty">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="32"
+                    height="32"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1"
+                  >
+                    <path
+                      d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                    />
+                  </svg>
+                  <p>No saved topics</p>
+                  <span>Add topics you use frequently</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Publish Message</h2>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Topic Name</label>
+                <div class="topic-input-wrapper">
+                  <div
+                    class="topic-select-container"
+                    id="topic-select-container"
+                  >
+                    <select id="messaging-topic-select">
+                      <option value="">Select a saved topic...</option>
+                      <option value="__custom__">
+                        ✏️ Enter custom topic...
+                      </option>
+                    </select>
+                  </div>
+                  <input
+                    type="text"
+                    id="messaging-topic"
+                    class="topic-custom-input"
+                    placeholder="Enter topic name (max 80 characters)"
+                    maxlength="80"
+                  />
+                  <button
+                    class="btn btn-sm btn-toggle-mode"
+                    id="btn-toggle-topic-input"
+                    title="Switch to manual input"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                      />
+                      <path
+                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <span class="form-hint"
+                  >Select a saved topic or click the edit button for custom
+                  input</span
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="messaging-content">Message Content</label>
+                <div class="editor-toolbar">
+                  <span class="char-count" id="message-char-count"
+                    >0 / 1024</span
+                  >
+                </div>
+                <textarea
+                  id="messaging-content"
+                  placeholder="Enter your message (max 1024 characters)"
+                  rows="8"
+                  maxlength="1024"
+                ></textarea>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-primary" id="btn-send-message">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                  Send Message
+                </button>
+                <button class="btn btn-secondary" id="btn-clear-message">
+                  Clear
+                </button>
+              </div>
+
+              <div
+                class="alert"
+                id="messaging-alert"
+                style="display: none"
+              ></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Message History</h2>
+              <button class="btn btn-sm btn-secondary" id="btn-clear-history">
+                Clear History
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="message-history" id="message-history">
+                <div class="empty-state" id="history-empty">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="48"
+                    height="48"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1"
+                  >
+                    <path
+                      d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                    />
+                  </svg>
+                  <p>No messages sent yet</p>
+                  <span>Messages you send will appear here</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>How to Use Messaging Service</h2>
+            </div>
+            <div class="card-body">
+              <ol class="instructions-list">
+                <li>
+                  In your Roblox game, subscribe to a topic using
+                  <code
+                    >MessagingService:SubscribeAsync("topicName",
+                    callback)</code
+                  >
+                </li>
+                <li>Enter the same topic name above</li>
+                <li>Type your message (plain text or JSON)</li>
+                <li>
+                  Click <strong>Send Message</strong> to broadcast to all
+                  servers
+                </li>
+                <li>
+                  Your game's callback function will receive the message on all
+                  active servers
+                </li>
+              </ol>
+              <p class="form-hint" style="margin-top: 1rem">
+                <strong>Note:</strong> Your API key must have the
+                <code>universe-messaging-service:publish</code> permission.
+              </p>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
 
@@ -813,6 +1165,55 @@
           <button class="btn btn-secondary modal-close">Cancel</button>
           <button class="btn btn-primary" id="btn-restore-version">
             Restore This Version
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Topic Modal -->
+    <div class="modal" id="modal-add-topic">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content" style="max-width: 400px">
+        <div class="modal-header">
+          <h2>Add Topic</h2>
+          <button class="btn btn-icon modal-close" aria-label="Close">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="add-topic-input">Topic Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="add-topic-input"
+              placeholder="Enter topic name"
+              maxlength="80"
+            />
+            <small
+              style="
+                color: var(--text-secondary);
+                margin-top: 4px;
+                display: block;
+              "
+            >
+              Max 80 characters
+            </small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Cancel</button>
+          <button class="btn btn-primary" id="btn-confirm-add-topic">
+            Add Topic
           </button>
         </div>
       </div>

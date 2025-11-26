@@ -484,3 +484,162 @@ ipcMain.handle('snapshot-datastores', async (event, { apiKey, universeId }) => {
     }
   }
 })
+
+// ============ Messaging Service API ============
+
+// Publish message to a topic
+ipcMain.handle(
+  'publish-message',
+  async (event, { apiKey, universeId, topic, message }) => {
+    try {
+      const response = await axios.post(
+        `${OPEN_CLOUD_BASE}/messaging-service/v1/universes/${universeId}/topics/${encodeURIComponent(
+          topic
+        )}`,
+        { message },
+        {
+          headers: {
+            'x-api-key': apiKey,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      return { success: true }
+    } catch (error) {
+      const status = error.response?.status
+      let errorMessage = error.response?.data?.message || error.message
+
+      if (status === 400) {
+        errorMessage = 'Invalid request - check topic name and message'
+      } else if (status === 401) {
+        errorMessage = 'Invalid API key'
+      } else if (status === 403) {
+        errorMessage =
+          'API key does not have MessagingService publish permission'
+      } else if (status === 404) {
+        errorMessage = 'Universe not found'
+      } else if (status === 413) {
+        errorMessage = 'Message too large (max 1024 characters)'
+      }
+
+      return {
+        success: false,
+        message: errorMessage,
+      }
+    }
+  }
+)
+
+// ============ Permission Checking ============
+
+// Check if API key has list datastores permission
+ipcMain.handle(
+  'check-permission-list',
+  async (event, { apiKey, universeId }) => {
+    try {
+      await axios.get(
+        `${OPEN_CLOUD_BASE}/datastores/v1/universes/${universeId}/standard-datastores`,
+        {
+          headers: { 'x-api-key': apiKey },
+          params: { limit: 1 },
+        }
+      )
+      return { hasPermission: true }
+    } catch (error) {
+      const status = error.response?.status
+      // 403 means no permission, other errors might be different issues
+      return { hasPermission: status !== 403 && status !== 401 }
+    }
+  }
+)
+
+// Check if API key has read entry permission
+ipcMain.handle(
+  'check-permission-read',
+  async (event, { apiKey, universeId }) => {
+    try {
+      // Try to list entries from any datastore - this tests read permission
+      // First get a datastore name
+      const dsResponse = await axios.get(
+        `${OPEN_CLOUD_BASE}/datastores/v1/universes/${universeId}/standard-datastores`,
+        {
+          headers: { 'x-api-key': apiKey },
+          params: { limit: 1 },
+        }
+      )
+
+      if (dsResponse.data.datastores && dsResponse.data.datastores.length > 0) {
+        const datastoreName = dsResponse.data.datastores[0].name
+        // Try to list entries (read operation)
+        await axios.get(
+          `${OPEN_CLOUD_BASE}/datastores/v1/universes/${universeId}/standard-datastores/datastore/entries`,
+          {
+            headers: { 'x-api-key': apiKey },
+            params: { datastoreName, limit: 1 },
+          }
+        )
+      }
+      return { hasPermission: true }
+    } catch (error) {
+      const status = error.response?.status
+      return { hasPermission: status !== 403 }
+    }
+  }
+)
+
+// Check if API key has write entry permission (we can't actually test this without writing)
+// So we infer from the API key validation - if read works, write might work
+// The only true test would be to write, which we don't want to do
+ipcMain.handle(
+  'check-permission-write',
+  async (event, { apiKey, universeId }) => {
+    // We can't truly test write without actually writing data
+    // Return 'unknown' status - user should verify in Creator Dashboard
+    return { hasPermission: 'unknown' }
+  }
+)
+
+// Check if API key has delete entry permission
+ipcMain.handle(
+  'check-permission-delete',
+  async (event, { apiKey, universeId }) => {
+    // We can't truly test delete without actually deleting data
+    // Return 'unknown' status - user should verify in Creator Dashboard
+    return { hasPermission: 'unknown' }
+  }
+)
+
+// Check if API key has messaging service publish permission
+ipcMain.handle(
+  'check-permission-messaging',
+  async (event, { apiKey, universeId }) => {
+    try {
+      // Send a valid test message - must be non-empty to avoid 400 before permission check
+      // Using a test topic and test message
+      await axios.post(
+        `${OPEN_CLOUD_BASE}/messaging-service/v1/universes/${universeId}/topics/__ds_editor_permission_test__`,
+        { message: 'permission_check' },
+        {
+          headers: {
+            'x-api-key': apiKey,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      // If we get here (200), we definitely have permission
+      return { hasPermission: true }
+    } catch (error) {
+      const status = error.response?.status
+      // 403 = "Publishing is not allowed on this experience" - no permission
+      // 401 = API key not valid / no authorization - no permission
+      // 200 would mean success (handled above)
+      // Any other error (400, 500, etc.) is ambiguous
+      if (status === 403 || status === 401) {
+        return { hasPermission: false }
+      }
+      // For other errors, we can't be sure - mark as unknown
+      return { hasPermission: 'unknown' }
+    }
+  }
+)
