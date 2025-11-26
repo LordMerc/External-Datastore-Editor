@@ -59,6 +59,7 @@ let state = {
   showDeletedEntries: false, // Toggle for showing deleted entries
   pendingDeleteDatastore: null,
   pendingDeleteTopicIndex: null, // Index of topic pending deletion
+  pendingDeleteTemplateIndex: null, // Index of template pending deletion
   deletedEntries: [], // Track locally deleted entries
   versionHistoryEntry: null, // Current entry being viewed in version history
   selectedVersion: null, // Currently selected version for restore
@@ -189,6 +190,21 @@ const elements = {
   messageHistory: document.getElementById('message-history'),
   historyEmpty: document.getElementById('history-empty'),
   btnClearHistory: document.getElementById('btn-clear-history'),
+
+  // Message Templates
+  btnAddTemplate: document.getElementById('btn-add-template'),
+  templatesList: document.getElementById('templates-list'),
+  templatesEmpty: document.getElementById('templates-empty'),
+  modalTemplate: document.getElementById('modal-template'),
+  templateModalTitle: document.getElementById('template-modal-title'),
+  templateNameInput: document.getElementById('template-name-input'),
+  templateContentInput: document.getElementById('template-content-input'),
+  btnSaveTemplate: document.getElementById('btn-save-template'),
+  modalDeleteTemplate: document.getElementById('modal-delete-template'),
+  deleteTemplateName: document.getElementById('delete-template-name'),
+  btnConfirmDeleteTemplate: document.getElementById(
+    'btn-confirm-delete-template'
+  ),
 
   // Add Topic Modal
   modalAddTopic: document.getElementById('modal-add-topic'),
@@ -2144,6 +2160,278 @@ function confirmDeleteTopic() {
   }
 }
 
+// ============ Message Templates ============
+let messageTemplates = []
+let editingTemplateIndex = null // null = adding new, number = editing existing
+
+function loadMessageTemplates() {
+  try {
+    const raw = localStorage.getItem('messageTemplates')
+    if (raw) messageTemplates = JSON.parse(raw)
+  } catch {
+    messageTemplates = []
+  }
+}
+
+function saveMessageTemplates() {
+  try {
+    localStorage.setItem('messageTemplates', JSON.stringify(messageTemplates))
+  } catch {}
+}
+
+function renderMessageTemplates() {
+  if (!elements.templatesList) return
+
+  if (messageTemplates.length === 0) {
+    if (elements.templatesEmpty) elements.templatesEmpty.style.display = 'flex'
+    const items = elements.templatesList.querySelectorAll('.template-item')
+    items.forEach((item) => item.remove())
+    return
+  }
+
+  if (elements.templatesEmpty) elements.templatesEmpty.style.display = 'none'
+
+  // Clear existing items
+  const existingItems =
+    elements.templatesList.querySelectorAll('.template-item')
+  existingItems.forEach((item) => item.remove())
+
+  // Render templates
+  messageTemplates.forEach((template, index) => {
+    const item = document.createElement('div')
+    item.className = 'template-item'
+    item.innerHTML = `
+      <div class="template-item-content">
+        <div class="template-item-name">${escapeHtml(template.name)}</div>
+        <div class="template-item-preview">${escapeHtml(template.content)}</div>
+      </div>
+      <div class="template-item-actions">
+        <button class="btn btn-sm btn-icon btn-use-template" title="Use template">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </button>
+        <button class="btn btn-sm btn-icon btn-edit-template" title="Edit template">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </button>
+        <button class="btn btn-sm btn-icon btn-danger btn-delete-template" title="Delete template">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+    `
+
+    // Use template button
+    item.querySelector('.btn-use-template').addEventListener('click', (e) => {
+      e.stopPropagation()
+      useTemplate(index)
+    })
+
+    // Edit template button
+    item.querySelector('.btn-edit-template').addEventListener('click', (e) => {
+      e.stopPropagation()
+      showEditTemplateModal(index)
+    })
+
+    // Delete template button
+    item
+      .querySelector('.btn-delete-template')
+      .addEventListener('click', (e) => {
+        e.stopPropagation()
+        showDeleteTemplateModal(index)
+      })
+
+    // Click on item to use template
+    item.addEventListener('click', () => {
+      useTemplate(index)
+    })
+
+    elements.templatesList.appendChild(item)
+  })
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div')
+  div.textContent = text
+  return div.innerHTML
+}
+
+function useTemplate(index) {
+  const template = messageTemplates[index]
+  if (template && elements.messagingContent) {
+    elements.messagingContent.value = template.content
+    // Update char count
+    if (elements.messageCharCount) {
+      elements.messageCharCount.textContent = `${template.content.length} / 1024`
+    }
+    showToast(
+      'success',
+      'Template Applied',
+      `"${template.name}" loaded into message`
+    )
+  }
+}
+
+function showAddTemplateModal() {
+  editingTemplateIndex = null
+  if (elements.templateModalTitle) {
+    elements.templateModalTitle.textContent = 'Add Template'
+  }
+  if (elements.templateNameInput) {
+    elements.templateNameInput.value = ''
+  }
+  if (elements.templateContentInput) {
+    elements.templateContentInput.value = ''
+  }
+  if (elements.modalTemplate) {
+    elements.modalTemplate.classList.add('active')
+    elements.templateNameInput?.focus()
+  }
+}
+
+function showEditTemplateModal(index) {
+  editingTemplateIndex = index
+  const template = messageTemplates[index]
+  if (elements.templateModalTitle) {
+    elements.templateModalTitle.textContent = 'Edit Template'
+  }
+  if (elements.templateNameInput) {
+    elements.templateNameInput.value = template.name
+  }
+  if (elements.templateContentInput) {
+    elements.templateContentInput.value = template.content
+  }
+  if (elements.modalTemplate) {
+    elements.modalTemplate.classList.add('active')
+    elements.templateNameInput?.focus()
+  }
+}
+
+function hideTemplateModal() {
+  editingTemplateIndex = null
+  if (elements.modalTemplate) {
+    elements.modalTemplate.classList.remove('active')
+  }
+}
+
+function saveTemplate() {
+  const name = elements.templateNameInput?.value.trim()
+  const content = elements.templateContentInput?.value.trim()
+
+  if (!name) {
+    showToast('error', 'Invalid Name', 'Please enter a template name')
+    return
+  }
+  if (!content) {
+    showToast('error', 'Invalid Content', 'Please enter message content')
+    return
+  }
+  if (content.length > 1024) {
+    showToast(
+      'error',
+      'Content Too Long',
+      'Message must be 1024 characters or less'
+    )
+    return
+  }
+
+  if (editingTemplateIndex !== null) {
+    // Editing existing
+    messageTemplates[editingTemplateIndex] = { name, content }
+    showToast('success', 'Template Updated', `"${name}" has been updated`)
+  } else {
+    // Adding new
+    messageTemplates.push({ name, content })
+    showToast('success', 'Template Added', `"${name}" has been saved`)
+  }
+
+  saveMessageTemplates()
+  renderMessageTemplates()
+  hideTemplateModal()
+}
+
+function showDeleteTemplateModal(index) {
+  state.pendingDeleteTemplateIndex = index
+  const template = messageTemplates[index]
+  if (elements.deleteTemplateName) {
+    elements.deleteTemplateName.textContent = template.name
+  }
+  if (elements.modalDeleteTemplate) {
+    elements.modalDeleteTemplate.classList.add('active')
+  }
+}
+
+function hideDeleteTemplateModal() {
+  state.pendingDeleteTemplateIndex = null
+  if (elements.modalDeleteTemplate) {
+    elements.modalDeleteTemplate.classList.remove('active')
+  }
+}
+
+function confirmDeleteTemplate() {
+  if (state.pendingDeleteTemplateIndex !== null) {
+    const template = messageTemplates[state.pendingDeleteTemplateIndex]
+    messageTemplates.splice(state.pendingDeleteTemplateIndex, 1)
+    saveMessageTemplates()
+    renderMessageTemplates()
+    hideDeleteTemplateModal()
+    showToast(
+      'success',
+      'Template Deleted',
+      `"${template.name}" has been removed`
+    )
+  }
+}
+
+// Load templates on startup
+loadMessageTemplates()
+
+// Template modal event listeners
+if (elements.btnAddTemplate) {
+  elements.btnAddTemplate.addEventListener('click', showAddTemplateModal)
+}
+
+if (elements.btnSaveTemplate) {
+  elements.btnSaveTemplate.addEventListener('click', saveTemplate)
+}
+
+if (elements.modalTemplate) {
+  elements.modalTemplate.querySelectorAll('.modal-close').forEach((btn) => {
+    btn.addEventListener('click', hideTemplateModal)
+  })
+  elements.modalTemplate.addEventListener('click', (e) => {
+    if (e.target === elements.modalTemplate) {
+      hideTemplateModal()
+    }
+  })
+}
+
+if (elements.btnConfirmDeleteTemplate) {
+  elements.btnConfirmDeleteTemplate.addEventListener(
+    'click',
+    confirmDeleteTemplate
+  )
+}
+
+if (elements.modalDeleteTemplate) {
+  elements.modalDeleteTemplate
+    .querySelectorAll('.modal-close')
+    .forEach((btn) => {
+      btn.addEventListener('click', hideDeleteTemplateModal)
+    })
+  elements.modalDeleteTemplate.addEventListener('click', (e) => {
+    if (e.target === elements.modalDeleteTemplate) {
+      hideDeleteTemplateModal()
+    }
+  })
+}
+
 function getSelectedTopic() {
   // If custom input is active (visible), use that
   if (elements.messagingTopic?.classList.contains('active')) {
@@ -2760,6 +3048,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSyntaxHighlight()
   renderMessageHistory()
   renderSavedTopics()
+  renderMessageTemplates()
 
   // Initialize keybind settings
   renderKeybindSettings()
