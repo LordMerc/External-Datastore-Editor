@@ -1,7 +1,7 @@
 {
-  "name": "roblox-datastore-editor",
+  "name": "roblox-cloud-manager",
   "version": "1.0.0",
-  "description": "External Roblox Datastore Editor using Open Cloud API",
+  "description": "A powerful desktop application for managing Roblox Open Cloud services",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -19,8 +19,8 @@
     "axios": "^1.6.2"
   },
   "build": {
-    "appId": "com.roblox.datastore-editor",
-    "productName": "Roblox Datastore Editor",
+    "appId": "com.roblox.cloud-manager",
+    "productName": "Roblox Cloud Manager",
     "directories": {
       "output": "dist"
     },
