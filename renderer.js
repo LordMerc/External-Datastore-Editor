@@ -395,7 +395,7 @@ async function loadEntries(append = false) {
   showLoading('Loading Entries...')
 
   const scope = elements.entryScope.value.trim() || undefined
-  const prefix = elements.entrySearch.value.trim() || undefined
+  const searchQuery = elements.entrySearch.value.trim().toLowerCase()
   const cursor = append ? state.entriesNextCursor : undefined
 
   const result = await window.electronAPI.listEntries(
@@ -404,16 +404,24 @@ async function loadEntries(append = false) {
     state.currentDatastore,
     scope,
     cursor,
-    prefix
+    undefined // Don't use prefix filter from API, we'll filter client-side
   )
 
   hideLoading()
 
   if (result.success) {
+    // Filter entries client-side to allow partial matching anywhere in the key
+    let filteredKeys = result.keys
+    if (searchQuery) {
+      filteredKeys = result.keys.filter((entry) =>
+        entry.key.toLowerCase().includes(searchQuery)
+      )
+    }
+
     if (append) {
-      state.entries = [...state.entries, ...result.keys]
+      state.entries = [...state.entries, ...filteredKeys]
     } else {
-      state.entries = result.keys
+      state.entries = filteredKeys
     }
     state.entriesNextCursor = result.nextCursor
     renderEntries()

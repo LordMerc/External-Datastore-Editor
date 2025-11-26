@@ -2,8 +2,6 @@
 
 A desktop application for externally editing Roblox Datastores using the Open Cloud API.
 
-![Roblox Creator Hub Theme](https://create.roblox.com)
-
 ## Features
 
 - **API Key Validation** - Verify your Open Cloud API key is working correctly
