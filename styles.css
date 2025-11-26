@@ -4,10 +4,10 @@
 
 :root {
   /* Colors from Roblox Creator Hub */
-  --bg-primary: #1a1a1d;
-  --bg-secondary: #232327;
-  --bg-tertiary: #2d2d32;
-  --bg-elevated: #393940;
+  --bg-primary: #141519;
+  --bg-secondary: #1a1a1f;
+  --bg-tertiary: #232328;
+  --bg-elevated: #2d2d33;
 
   --border-color: #3d3d42;
   --border-light: #4a4a50;
@@ -130,7 +130,7 @@ body {
 /* ============ Sidebar ============ */
 .sidebar {
   width: var(--sidebar-width);
-  background: var(--bg-secondary);
+  background: #0f1014;
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -280,12 +280,16 @@ body {
   padding: 16px 20px;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-tertiary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .card-header h2 {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
+  margin: 0;
 }
 
 .card-body {
@@ -427,36 +431,50 @@ textarea {
 }
 
 .btn-primary {
-  background: var(--accent-primary);
+  background: rgba(0, 162, 255, 0.35);
   color: white;
+  border: 1px solid rgba(0, 162, 255, 0.6);
 }
 
 .btn-primary:hover {
-  background: var(--accent-hover);
+  background: rgba(0, 144, 224, 0.55);
+  border-color: rgba(0, 162, 255, 0.8);
 }
 
 .btn-primary:active {
-  background: var(--accent-active);
+  background: rgba(0, 128, 200, 0.65);
 }
 
 .btn-secondary {
-  background: var(--bg-tertiary);
+  background: rgba(45, 45, 50, 0.35);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover {
-  background: var(--bg-elevated);
+  background: rgba(57, 57, 64, 0.8);
   border-color: var(--border-light);
 }
 
 .btn-danger {
-  background: var(--danger);
+  background: rgba(231, 76, 60, 0.5);
   color: white;
+  border: 1px solid rgba(231, 76, 60, 0.6);
 }
 
 .btn-danger:hover {
-  background: var(--danger-hover);
+  background: rgba(192, 57, 43, 0.75);
+}
+
+.btn-history-entry {
+  background: rgba(243, 156, 18, 0.35);
+  color: white;
+  border: 1px solid rgba(243, 156, 18, 0.5);
+}
+
+.btn-history-entry:hover {
+  background: rgba(243, 156, 18, 0.55);
+  border-color: rgba(243, 156, 18, 0.7);
 }
 
 .btn-icon {
@@ -535,6 +553,8 @@ textarea {
   display: flex;
   align-items: center;
   gap: 16px;
+  margin-top: 24px;
+  margin-left: 10px;
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
