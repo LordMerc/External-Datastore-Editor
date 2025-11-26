@@ -129,6 +129,22 @@
             </svg>
             <span>Messaging</span>
           </button>
+          <button class="nav-item" data-tab="settings" id="nav-settings">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+              />
+            </svg>
+            <span>Settings</span>
+          </button>
         </nav>
 
         <div class="sidebar-footer">
@@ -976,6 +992,141 @@
             </div>
           </div>
         </div>
+
+        <!-- Settings Tab -->
+        <div class="tab-content" id="tab-settings">
+          <div class="page-header">
+            <h1>Settings</h1>
+            <p class="page-subtitle">
+              Configure application settings and keyboard shortcuts
+            </p>
+          </div>
+
+          <!-- Keyboard Shortcuts Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>Keyboard Shortcuts</h2>
+              <button class="btn btn-sm btn-secondary" id="btn-reset-keybinds">
+                Reset to Defaults
+              </button>
+            </div>
+            <div class="card-body">
+              <p class="form-hint" style="margin-bottom: 16px">
+                Click on any shortcut to change it. Press the new key
+                combination when prompted.
+              </p>
+
+              <div class="keybinds-section">
+                <h4>Navigation</h4>
+                <div class="keybind-row" data-action="goToConnection">
+                  <span class="keybind-label">Go to Connection</span>
+                  <button class="keybind-input" id="keybind-goToConnection">
+                    <span class="keybind-keys"></span>
+                  </button>
+                </div>
+                <div class="keybind-row" data-action="goToDatastores">
+                  <span class="keybind-label">Go to Datastores</span>
+                  <button class="keybind-input" id="keybind-goToDatastores">
+                    <span class="keybind-keys"></span>
+                  </button>
+                </div>
+                <div class="keybind-row" data-action="goToEditor">
+                  <span class="keybind-label">Go to Editor</span>
+                  <button class="keybind-input" id="keybind-goToEditor">
+                    <span class="keybind-keys"></span>
+                  </button>
+                </div>
+                <div class="keybind-row" data-action="goToMessaging">
+                  <span class="keybind-label">Go to Messaging</span>
+                  <button class="keybind-input" id="keybind-goToMessaging">
+                    <span class="keybind-keys"></span>
+                  </button>
+                </div>
+                <div class="keybind-row" data-action="goToSettings">
+                  <span class="keybind-label">Go to Settings</span>
+                  <button class="keybind-input" id="keybind-goToSettings">
+                    <span class="keybind-keys"></span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="keybinds-section">
+                <h4>Editor Actions</h4>
+                <div class="keybind-row" data-action="saveEntry">
+                  <span class="keybind-label">Save Entry</span>
+                  <button class="keybind-input" id="keybind-saveEntry">
+                    <span class="keybind-keys"></span>
+                  </button>
+                </div>
+                <div class="keybind-row" data-action="formatJson">
+                  <span class="keybind-label">Format JSON</span>
+                  <button class="keybind-input" id="keybind-formatJson">
+                    <span class="keybind-keys"></span>
+                  </button>
+                </div>
+                <div class="keybind-row" data-action="minifyJson">
+                  <span class="keybind-label">Minify JSON</span>
+                  <button class="keybind-input" id="keybind-minifyJson">
+                    <span class="keybind-keys"></span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="keybinds-section">
+                <h4>General</h4>
+                <div class="keybind-row" data-action="refreshDatastores">
+                  <span class="keybind-label">Refresh Datastores</span>
+                  <button class="keybind-input" id="keybind-refreshDatastores">
+                    <span class="keybind-keys"></span>
+                  </button>
+                </div>
+                <div class="keybind-row" data-action="showShortcuts">
+                  <span class="keybind-label">Show Shortcuts Help</span>
+                  <button class="keybind-input" id="keybind-showShortcuts">
+                    <span class="keybind-keys"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- About Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>About</h2>
+            </div>
+            <div class="card-body">
+              <div class="about-info">
+                <p><strong>Roblox Datastore Editor</strong></p>
+                <p class="text-secondary">
+                  A desktop application for managing Roblox datastores via the
+                  Open Cloud API.
+                </p>
+                <p class="text-secondary" style="margin-top: 12px">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    style="vertical-align: middle; margin-right: 4px"
+                  >
+                    <path
+                      d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+                    />
+                  </svg>
+                  <a
+                    href="#"
+                    id="link-github"
+                    style="color: var(--accent-primary)"
+                    >View on GitHub</a
+                  >
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
 
@@ -1215,6 +1366,123 @@
           <button class="btn btn-primary" id="btn-confirm-add-topic">
             Add Topic
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Topic Confirmation Modal -->
+    <div class="modal" id="modal-delete-topic">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content" style="max-width: 400px">
+        <div class="modal-header">
+          <h2>Delete Topic</h2>
+          <button class="btn btn-icon modal-close" aria-label="Close">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Are you sure you want to delete the topic "<span
+              id="delete-topic-name"
+            ></span
+            >"?
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Cancel</button>
+          <button class="btn btn-danger" id="btn-confirm-delete-topic">
+            Delete Topic
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal" id="modal-shortcuts">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content" style="max-width: 500px">
+        <div class="modal-header">
+          <h2>Keyboard Shortcuts</h2>
+          <button class="btn btn-icon modal-close" aria-label="Close">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="shortcuts-list">
+            <div class="shortcut-group">
+              <h4>Navigation</h4>
+              <div class="shortcut-item">
+                <span class="shortcut-keys"></span>
+                <span class="shortcut-desc">Go to Connection</span>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-keys"></span>
+                <span class="shortcut-desc">Go to Datastores</span>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-keys"></span>
+                <span class="shortcut-desc">Go to Editor</span>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-keys"></span>
+                <span class="shortcut-desc">Go to Messaging</span>
+              </div>
+            </div>
+            <div class="shortcut-group">
+              <h4>Editor</h4>
+              <div class="shortcut-item">
+                <span class="shortcut-keys"></span>
+                <span class="shortcut-desc">Save Entry</span>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-keys"></span>
+                <span class="shortcut-desc">Format JSON</span>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-keys"></span>
+                <span class="shortcut-desc">Minify JSON</span>
+              </div>
+            </div>
+            <div class="shortcut-group">
+              <h4>General</h4>
+              <div class="shortcut-item">
+                <span class="shortcut-keys"></span>
+                <span class="shortcut-desc">Refresh Datastores</span>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-keys"><kbd>Escape</kbd></span>
+                <span class="shortcut-desc">Close Modal</span>
+              </div>
+              <div class="shortcut-item">
+                <span class="shortcut-keys"></span>
+                <span class="shortcut-desc">Show Shortcuts</span>
+              </div>
+            </div>
+          </div>
+          <p class="form-hint" style="margin-top: 16px; text-align: center">
+            Customize shortcuts in <strong>Settings</strong>
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary modal-close">Got it!</button>
         </div>
       </div>
     </div>

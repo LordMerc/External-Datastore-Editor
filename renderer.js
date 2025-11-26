@@ -2,6 +2,50 @@
 // Roblox Datastore Editor - Renderer Process
 // ============================================
 
+// Default Keybinds Configuration
+const DEFAULT_KEYBINDS = {
+  goToConnection: { ctrl: true, shift: false, key: '1' },
+  goToDatastores: { ctrl: true, shift: false, key: '2' },
+  goToEditor: { ctrl: true, shift: false, key: '3' },
+  goToMessaging: { ctrl: true, shift: false, key: '4' },
+  goToSettings: { ctrl: true, shift: false, key: '5' },
+  saveEntry: { ctrl: true, shift: false, key: 's' },
+  formatJson: { ctrl: true, shift: true, key: 'f' },
+  minifyJson: { ctrl: true, shift: true, key: 'm' },
+  refreshDatastores: { ctrl: true, shift: false, key: 'r' },
+  showShortcuts: { ctrl: false, shift: false, key: '?' },
+}
+
+// Current keybinds (loaded from localStorage or defaults)
+let keybinds = { ...DEFAULT_KEYBINDS }
+
+function loadKeybinds() {
+  try {
+    const saved = localStorage.getItem('keybinds')
+    if (saved) {
+      keybinds = { ...DEFAULT_KEYBINDS, ...JSON.parse(saved) }
+    }
+  } catch {
+    keybinds = { ...DEFAULT_KEYBINDS }
+  }
+}
+
+function saveKeybinds() {
+  try {
+    localStorage.setItem('keybinds', JSON.stringify(keybinds))
+  } catch {}
+}
+
+function resetKeybinds() {
+  keybinds = { ...DEFAULT_KEYBINDS }
+  saveKeybinds()
+  renderKeybindSettings()
+  showToast('success', 'Keybinds Reset', 'All shortcuts restored to defaults')
+}
+
+// Load keybinds on startup
+loadKeybinds()
+
 // State
 let state = {
   isConnected: false,
@@ -14,6 +58,7 @@ let state = {
   showDeleted: false,
   showDeletedEntries: false, // Toggle for showing deleted entries
   pendingDeleteDatastore: null,
+  pendingDeleteTopicIndex: null, // Index of topic pending deletion
   deletedEntries: [], // Track locally deleted entries
   versionHistoryEntry: null, // Current entry being viewed in version history
   selectedVersion: null, // Currently selected version for restore
@@ -149,6 +194,18 @@ const elements = {
   modalAddTopic: document.getElementById('modal-add-topic'),
   addTopicInput: document.getElementById('add-topic-input'),
   btnConfirmAddTopic: document.getElementById('btn-confirm-add-topic'),
+
+  // Delete Topic Modal
+  modalDeleteTopic: document.getElementById('modal-delete-topic'),
+  deleteTopicName: document.getElementById('delete-topic-name'),
+  btnConfirmDeleteTopic: document.getElementById('btn-confirm-delete-topic'),
+
+  // Shortcuts Modal
+  modalShortcuts: document.getElementById('modal-shortcuts'),
+
+  // Settings
+  btnResetKeybinds: document.getElementById('btn-reset-keybinds'),
+  linkGithub: document.getElementById('link-github'),
 
   // Permissions
   permissionsCard: document.getElementById('permissions-card'),
@@ -1968,10 +2025,10 @@ function renderSavedTopics() {
       selectTopic(topic)
     })
 
-    // Delete topic button
+    // Delete topic button - show confirmation modal
     item.querySelector('.btn-delete-topic').addEventListener('click', (e) => {
       e.stopPropagation()
-      deleteTopic(index)
+      showDeleteTopicModal(index)
     })
 
     // Click on item to select
@@ -2060,6 +2117,31 @@ function deleteTopic(index) {
   saveSavedTopics()
   renderSavedTopics()
   showToast('success', 'Topic Deleted', `"${topic}" has been removed`)
+}
+
+function showDeleteTopicModal(index) {
+  state.pendingDeleteTopicIndex = index
+  const topic = savedTopics[index]
+  if (elements.deleteTopicName) {
+    elements.deleteTopicName.textContent = topic
+  }
+  if (elements.modalDeleteTopic) {
+    elements.modalDeleteTopic.classList.add('active')
+  }
+}
+
+function hideDeleteTopicModal() {
+  state.pendingDeleteTopicIndex = null
+  if (elements.modalDeleteTopic) {
+    elements.modalDeleteTopic.classList.remove('active')
+  }
+}
+
+function confirmDeleteTopic() {
+  if (state.pendingDeleteTopicIndex !== null) {
+    deleteTopic(state.pendingDeleteTopicIndex)
+    hideDeleteTopicModal()
+  }
 }
 
 function getSelectedTopic() {
@@ -2196,6 +2278,272 @@ if (elements.modalAddTopic) {
       }
     })
   }
+}
+
+// Delete Topic Modal event listeners
+if (elements.btnConfirmDeleteTopic) {
+  elements.btnConfirmDeleteTopic.addEventListener('click', confirmDeleteTopic)
+}
+
+if (elements.modalDeleteTopic) {
+  elements.modalDeleteTopic.querySelectorAll('.modal-close').forEach((btn) => {
+    btn.addEventListener('click', hideDeleteTopicModal)
+  })
+  elements.modalDeleteTopic.addEventListener('click', (e) => {
+    if (e.target === elements.modalDeleteTopic) {
+      hideDeleteTopicModal()
+    }
+  })
+}
+
+// Shortcuts Modal
+function showShortcutsModal() {
+  if (elements.modalShortcuts) {
+    elements.modalShortcuts.classList.add('active')
+  }
+}
+
+function hideShortcutsModal() {
+  if (elements.modalShortcuts) {
+    elements.modalShortcuts.classList.remove('active')
+  }
+}
+
+if (elements.modalShortcuts) {
+  elements.modalShortcuts.querySelectorAll('.modal-close').forEach((btn) => {
+    btn.addEventListener('click', hideShortcutsModal)
+  })
+  elements.modalShortcuts.addEventListener('click', (e) => {
+    if (e.target === elements.modalShortcuts) {
+      hideShortcutsModal()
+    }
+  })
+}
+
+// ============ Keyboard Shortcuts ============
+
+// Helper to check if a key event matches a keybind
+function matchesKeybind(e, keybind) {
+  if (!keybind) return false
+  const keyMatch =
+    e.key.toLowerCase() === keybind.key.toLowerCase() ||
+    (keybind.key === '?' && e.key === '?')
+  return keyMatch && e.ctrlKey === keybind.ctrl && e.shiftKey === keybind.shift
+}
+
+// Helper to format keybind for display
+function formatKeybind(keybind) {
+  if (!keybind) return ''
+  const parts = []
+  if (keybind.ctrl) parts.push('<kbd>Ctrl</kbd>')
+  if (keybind.shift) parts.push('<kbd>Shift</kbd>')
+  parts.push(`<kbd>${keybind.key.toUpperCase()}</kbd>`)
+  return parts.join(' + ')
+}
+
+// Render keybind settings in the Settings tab
+function renderKeybindSettings() {
+  const keybindRows = document.querySelectorAll('.keybind-row')
+  keybindRows.forEach((row) => {
+    const action = row.dataset.action
+    const keysSpan = row.querySelector('.keybind-keys')
+    if (keysSpan && keybinds[action]) {
+      keysSpan.innerHTML = formatKeybind(keybinds[action])
+    }
+  })
+}
+
+// Keybind recording state
+let recordingKeybind = null
+
+function startRecordingKeybind(action, button) {
+  // Stop any existing recording
+  stopRecordingKeybind()
+
+  recordingKeybind = action
+  button.classList.add('recording')
+  button.querySelector('.keybind-keys').innerHTML = '<em>Press keys...</em>'
+}
+
+function stopRecordingKeybind() {
+  if (recordingKeybind) {
+    const btn = document.getElementById(`keybind-${recordingKeybind}`)
+    if (btn) {
+      btn.classList.remove('recording')
+      const keysSpan = btn.querySelector('.keybind-keys')
+      if (keysSpan) {
+        keysSpan.innerHTML = formatKeybind(keybinds[recordingKeybind])
+      }
+    }
+    recordingKeybind = null
+  }
+}
+
+function recordKeybind(e) {
+  if (!recordingKeybind) return
+
+  // Ignore modifier-only presses
+  if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) return
+
+  e.preventDefault()
+  e.stopPropagation()
+
+  // Save the new keybind
+  keybinds[recordingKeybind] = {
+    ctrl: e.ctrlKey,
+    shift: e.shiftKey,
+    key: e.key.length === 1 ? e.key.toLowerCase() : e.key,
+  }
+
+  saveKeybinds()
+  stopRecordingKeybind()
+  renderKeybindSettings()
+  updateShortcutsModal()
+  showToast('success', 'Keybind Updated', 'Your new shortcut has been saved')
+}
+
+// Update shortcuts help modal with current keybinds
+function updateShortcutsModal() {
+  const shortcutItems =
+    elements.modalShortcuts?.querySelectorAll('.shortcut-item')
+  if (!shortcutItems) return
+
+  const actionMap = {
+    'Go to Connection': 'goToConnection',
+    'Go to Datastores': 'goToDatastores',
+    'Go to Editor': 'goToEditor',
+    'Go to Messaging': 'goToMessaging',
+    'Save Entry': 'saveEntry',
+    'Format JSON': 'formatJson',
+    'Minify JSON': 'minifyJson',
+    'Refresh Datastores': 'refreshDatastores',
+    'Show Shortcuts': 'showShortcuts',
+  }
+
+  shortcutItems.forEach((item) => {
+    const desc = item.querySelector('.shortcut-desc')?.textContent
+    const action = actionMap[desc]
+    if (action && keybinds[action]) {
+      const keysSpan = item.querySelector('.shortcut-keys')
+      if (keysSpan) {
+        keysSpan.innerHTML = formatKeybind(keybinds[action])
+      }
+    }
+  })
+}
+
+// Setup keybind input click handlers
+function setupKeybindInputs() {
+  const keybindInputs = document.querySelectorAll('.keybind-input')
+  keybindInputs.forEach((btn) => {
+    const action = btn.closest('.keybind-row')?.dataset.action
+    if (action) {
+      btn.addEventListener('click', () => {
+        startRecordingKeybind(action, btn)
+      })
+    }
+  })
+}
+
+// Main keyboard event handler
+document.addEventListener('keydown', (e) => {
+  // If recording a keybind, handle it separately
+  if (recordingKeybind) {
+    recordKeybind(e)
+    return
+  }
+
+  // Don't trigger shortcuts when typing in inputs/textareas
+  const activeEl = document.activeElement
+  const isTyping =
+    activeEl &&
+    (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')
+
+  // Escape always closes modals or stops recording
+  if (e.key === 'Escape') {
+    if (recordingKeybind) {
+      stopRecordingKeybind()
+      return
+    }
+    const activeModal = document.querySelector('.modal.active')
+    if (activeModal) {
+      activeModal.classList.remove('active')
+      return
+    }
+  }
+
+  // Show shortcuts (check even when not typing for ? key)
+  if (matchesKeybind(e, keybinds.showShortcuts) && !isTyping) {
+    e.preventDefault()
+    showShortcutsModal()
+    return
+  }
+
+  // Skip other shortcuts if typing
+  if (isTyping) return
+
+  // Navigation shortcuts
+  if (matchesKeybind(e, keybinds.goToConnection)) {
+    e.preventDefault()
+    document.querySelector('[data-tab="connection"]')?.click()
+  } else if (matchesKeybind(e, keybinds.goToDatastores)) {
+    e.preventDefault()
+    document.querySelector('[data-tab="datastores"]')?.click()
+  } else if (matchesKeybind(e, keybinds.goToEditor)) {
+    e.preventDefault()
+    document.querySelector('[data-tab="editor"]')?.click()
+  } else if (matchesKeybind(e, keybinds.goToMessaging)) {
+    e.preventDefault()
+    document.querySelector('[data-tab="messaging"]')?.click()
+  } else if (matchesKeybind(e, keybinds.goToSettings)) {
+    e.preventDefault()
+    document.querySelector('[data-tab="settings"]')?.click()
+  }
+
+  // Editor shortcuts
+  if (matchesKeybind(e, keybinds.saveEntry)) {
+    e.preventDefault()
+    if (elements.btnSave) {
+      elements.btnSave.click()
+    }
+  } else if (matchesKeybind(e, keybinds.formatJson)) {
+    e.preventDefault()
+    if (elements.btnFormatJson) {
+      elements.btnFormatJson.click()
+    }
+  } else if (matchesKeybind(e, keybinds.minifyJson)) {
+    e.preventDefault()
+    if (elements.btnMinifyJson) {
+      elements.btnMinifyJson.click()
+    }
+  }
+
+  // General shortcuts
+  if (matchesKeybind(e, keybinds.refreshDatastores)) {
+    e.preventDefault()
+    if (state.isConnected && elements.btnRefreshDatastores) {
+      elements.btnRefreshDatastores.click()
+    }
+  }
+})
+
+// Reset keybinds button
+if (elements.btnResetKeybinds) {
+  elements.btnResetKeybinds.addEventListener('click', resetKeybinds)
+}
+
+// GitHub link
+if (elements.linkGithub) {
+  elements.linkGithub.addEventListener('click', (e) => {
+    e.preventDefault()
+    window.electronAPI?.openExternal?.(
+      'https://github.com/LordMerc/External-Datastore-Editor'
+    ) ||
+      window.open(
+        'https://github.com/LordMerc/External-Datastore-Editor',
+        '_blank'
+      )
+  })
 }
 
 function renderMessageHistory() {
@@ -2412,6 +2760,11 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSyntaxHighlight()
   renderMessageHistory()
   renderSavedTopics()
+
+  // Initialize keybind settings
+  renderKeybindSettings()
+  setupKeybindInputs()
+  updateShortcutsModal()
 
   // Auto-validate if credentials exist
   if (state.apiKey && state.universeId) {
