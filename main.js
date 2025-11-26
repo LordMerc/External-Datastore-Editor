@@ -2,6 +2,19 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const axios = require('axios')
 
+// Enable hot reload in development
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    require('electron-reload')(__dirname, {
+      electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+      hardResetMethod: 'exit',
+      forceHardReset: false,
+    })
+  } catch (err) {
+    console.log('electron-reload not available')
+  }
+}
+
 let mainWindow
 
 function createWindow() {
