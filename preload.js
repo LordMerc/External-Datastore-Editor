@@ -58,6 +58,72 @@ contextBridge.exposeInMainWorld('electronAPI', {
       scope,
     }),
 
+  // Entry version history
+  listEntryVersions: (
+    apiKey,
+    universeId,
+    datastoreName,
+    entryKey,
+    scope,
+    cursor,
+    sortOrder
+  ) =>
+    ipcRenderer.invoke('list-entry-versions', {
+      apiKey,
+      universeId,
+      datastoreName,
+      entryKey,
+      scope,
+      cursor,
+      sortOrder,
+    }),
+
+  getEntryVersion: (
+    apiKey,
+    universeId,
+    datastoreName,
+    entryKey,
+    versionId,
+    scope
+  ) =>
+    ipcRenderer.invoke('get-entry-version', {
+      apiKey,
+      universeId,
+      datastoreName,
+      entryKey,
+      versionId,
+      scope,
+    }),
+
+  // Datastore management (v2 API)
+  listDatastoresV2: (apiKey, universeId, showDeleted, pageToken) =>
+    ipcRenderer.invoke('list-datastores-v2', {
+      apiKey,
+      universeId,
+      showDeleted,
+      pageToken,
+    }),
+
+  deleteDatastore: (apiKey, universeId, datastoreId) =>
+    ipcRenderer.invoke('delete-datastore', {
+      apiKey,
+      universeId,
+      datastoreId,
+    }),
+
+  undeleteDatastore: (apiKey, universeId, datastoreId) =>
+    ipcRenderer.invoke('undelete-datastore', {
+      apiKey,
+      universeId,
+      datastoreId,
+    }),
+
+  snapshotDatastores: (apiKey, universeId) =>
+    ipcRenderer.invoke('snapshot-datastores', {
+      apiKey,
+      universeId,
+    }),
+
   // Window controls
   minimizeWindow: () => ipcRenderer.invoke('window-minimize'),
   maximizeWindow: () => ipcRenderer.invoke('window-maximize'),

@@ -262,6 +262,94 @@ ipcMain.handle(
   }
 )
 
+// List entry versions
+ipcMain.handle(
+  'list-entry-versions',
+  async (
+    event,
+    {
+      apiKey,
+      universeId,
+      datastoreName,
+      entryKey,
+      scope,
+      cursor,
+      sortOrder,
+      startTime,
+      endTime,
+    }
+  ) => {
+    try {
+      const params = { datastoreName, entryKey, limit: 50 }
+      if (scope) params.scope = scope
+      if (cursor) params.cursor = cursor
+      if (sortOrder) params.sortOrder = sortOrder
+      if (startTime) params.startTime = startTime
+      if (endTime) params.endTime = endTime
+
+      const response = await axios.get(
+        `${OPEN_CLOUD_BASE}/datastores/v1/universes/${universeId}/standard-datastores/datastore/entries/entry/versions`,
+        {
+          headers: { 'x-api-key': apiKey },
+          params,
+        }
+      )
+
+      return {
+        success: true,
+        versions: response.data.versions || [],
+        nextCursor: response.data.nextPageCursor,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message,
+      }
+    }
+  }
+)
+
+// Get specific entry version
+ipcMain.handle(
+  'get-entry-version',
+  async (
+    event,
+    { apiKey, universeId, datastoreName, entryKey, versionId, scope }
+  ) => {
+    try {
+      const params = { datastoreName, entryKey, versionId }
+      if (scope) params.scope = scope
+
+      const response = await axios.get(
+        `${OPEN_CLOUD_BASE}/datastores/v1/universes/${universeId}/standard-datastores/datastore/entries/entry/versions/version`,
+        {
+          headers: { 'x-api-key': apiKey },
+          params,
+        }
+      )
+
+      return {
+        success: true,
+        data: response.data,
+        metadata: {
+          contentMD5: response.headers['content-md5'],
+          createdTime: response.headers['roblox-entry-created-time'],
+          versionCreatedTime:
+            response.headers['roblox-entry-version-created-time'],
+          userIds: response.headers['roblox-entry-userids'],
+          attributes: response.headers['roblox-entry-attributes'],
+          deleted: response.headers['roblox-entry-deleted'] === 'true',
+        },
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message,
+      }
+    }
+  }
+)
+
 // Window controls
 ipcMain.handle('window-minimize', () => {
   mainWindow.minimize()
@@ -277,4 +365,122 @@ ipcMain.handle('window-maximize', () => {
 
 ipcMain.handle('window-close', () => {
   mainWindow.close()
+})
+
+// ============ Datastore Management (v2 API) ============
+
+// List datastores with v2 API (supports showDeleted)
+ipcMain.handle(
+  'list-datastores-v2',
+  async (event, { apiKey, universeId, showDeleted, pageToken }) => {
+    try {
+      const params = { maxPageSize: 100 }
+      if (showDeleted) params.showDeleted = true
+      if (pageToken) params.pageToken = pageToken
+
+      const response = await axios.get(
+        `${OPEN_CLOUD_BASE}/cloud/v2/universes/${universeId}/data-stores`,
+        {
+          headers: { 'x-api-key': apiKey },
+          params,
+        }
+      )
+
+      return {
+        success: true,
+        datastores: response.data.dataStores || [],
+        nextPageToken: response.data.nextPageToken,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message,
+      }
+    }
+  }
+)
+
+// Delete datastore (soft delete - 30 day grace period)
+ipcMain.handle(
+  'delete-datastore',
+  async (event, { apiKey, universeId, datastoreId }) => {
+    try {
+      const response = await axios.delete(
+        `${OPEN_CLOUD_BASE}/cloud/v2/universes/${universeId}/data-stores/${encodeURIComponent(
+          datastoreId
+        )}`,
+        {
+          headers: { 'x-api-key': apiKey },
+        }
+      )
+
+      return {
+        success: true,
+        datastore: response.data,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message,
+      }
+    }
+  }
+)
+
+// Undelete datastore (restore from pending deletion)
+ipcMain.handle(
+  'undelete-datastore',
+  async (event, { apiKey, universeId, datastoreId }) => {
+    try {
+      const response = await axios.post(
+        `${OPEN_CLOUD_BASE}/cloud/v2/universes/${universeId}/data-stores/${encodeURIComponent(
+          datastoreId
+        )}:undelete`,
+        {},
+        {
+          headers: {
+            'x-api-key': apiKey,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      return {
+        success: true,
+        datastore: response.data,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message,
+      }
+    }
+  }
+)
+
+// Snapshot datastores
+ipcMain.handle('snapshot-datastores', async (event, { apiKey, universeId }) => {
+  try {
+    const response = await axios.post(
+      `${OPEN_CLOUD_BASE}/cloud/v2/universes/${universeId}/data-stores:snapshot`,
+      {},
+      {
+        headers: {
+          'x-api-key': apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+
+    return {
+      success: true,
+      newSnapshotTaken: response.data.newSnapshotTaken,
+      latestSnapshotTime: response.data.latestSnapshotTime,
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message,
+    }
+  }
 })

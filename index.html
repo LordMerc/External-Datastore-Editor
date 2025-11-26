@@ -262,6 +262,25 @@
               </svg>
               Refresh
             </button>
+            <button class="btn btn-secondary" id="btn-snapshot-datastores">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              Snapshot
+            </button>
+            <label class="toggle-label">
+              <input type="checkbox" id="show-deleted-toggle" />
+              <span class="toggle-text">Show Deleted</span>
+            </label>
             <div class="search-box">
               <svg
                 viewBox="0 0 24 24"
@@ -363,6 +382,10 @@
                   style="width: 120px"
                 />
               </div>
+              <label class="toggle-label">
+                <input type="checkbox" id="show-deleted-entries-toggle" />
+                <span class="toggle-text">Show Deleted</span>
+              </label>
             </div>
 
             <div class="entries-table-container">
@@ -682,6 +705,114 @@
           <button class="btn btn-secondary modal-close">Cancel</button>
           <button class="btn btn-danger" id="btn-confirm-delete">
             Delete Entry
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Delete Datastore Modal -->
+    <div class="modal" id="delete-datastore-modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Delete Datastore</h2>
+          <button class="btn btn-icon modal-close">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Are you sure you want to delete the datastore "<span
+              id="delete-datastore-name"
+            ></span
+            >"?
+          </p>
+          <p class="warning-text">
+            The datastore will be scheduled for permanent deletion in 30 days.
+            You can restore it before then.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Cancel</button>
+          <button class="btn btn-danger" id="btn-confirm-delete-datastore">
+            Delete Datastore
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Version History Modal -->
+    <div class="modal" id="version-history-modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-large">
+        <div class="modal-header">
+          <h2>Version History</h2>
+          <span class="version-entry-name" id="version-entry-name"></span>
+          <button class="btn btn-icon modal-close">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="versions-list" id="versions-list">
+            <div class="empty-state">
+              <p>Loading versions...</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Version Preview Modal -->
+    <div class="modal" id="version-preview-modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-large">
+        <div class="modal-header">
+          <h2>Version Preview</h2>
+          <span class="version-info" id="version-preview-info"></span>
+          <button class="btn btn-icon modal-close">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <pre
+            class="version-preview-content"
+            id="version-preview-content"
+          ></pre>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Cancel</button>
+          <button class="btn btn-primary" id="btn-restore-version">
+            Restore This Version
           </button>
         </div>
       </div>
