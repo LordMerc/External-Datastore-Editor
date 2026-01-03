@@ -25,9 +25,11 @@ A powerful desktop application for managing Roblox Open Cloud services including
 
 ### ⚙️ Settings & Customization
 
+- **Theme Switching** - Choose between Default (Roblox Creator Hub) and Sci Fi (Floating Transparency) themes
+- **Saved Connections** - Save multiple API Key + Universe ID configurations for quick switching
 - **Customizable Keyboard Shortcuts** - Configure all keybinds to your preference
 - **API Permissions Checker** - Verify your API key has the required scopes
-- **Dark Theme** - Clean dark interface matching Roblox Creator Hub
+- **Dark Theme** - Clean dark interface with theme persistence
 
 ### ⌨️ Keyboard Shortcuts
 
@@ -92,8 +94,16 @@ _All shortcuts are customizable in Settings!_
 2. Enter your Open Cloud API Key
 3. Enter your Universe ID
 4. Click "Validate Connection"
-5. The API Permissions Checklist will show which features are available
-6. Once connected, navigate using the sidebar tabs
+5. Click "Save Connection" to save for quick access later
+6. The API Permissions Checklist will show which features are available
+7. Once connected, navigate using the sidebar tabs
+
+### Switching Between Saved Connections
+
+1. Use the **Saved Connections** dropdown in the sidebar footer
+2. Or use the **Saved Connections** table on the Connection tab
+3. Click "Load" to populate credentials and auto-validate
+4. Click "Delete" to remove a saved connection
 
 ### Browsing Datastores
 
@@ -125,9 +135,10 @@ _All shortcuts are customizable in Settings!_
 ### Settings
 
 1. Go to the **Settings** tab
-2. Click on any keyboard shortcut to customize it
-3. Press your desired key combination
-4. Click "Reset to Defaults" to restore original shortcuts
+2. **Theme**: Choose between Default and Sci Fi themes
+3. **Keyboard Shortcuts**: Click on any shortcut to customize it
+4. Press your desired key combination
+5. Click "Reset to Defaults" to restore original shortcuts
 
 ## Building for Distribution
 

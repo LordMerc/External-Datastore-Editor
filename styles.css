@@ -2083,3 +2083,217 @@ kbd {
   color: var(--text-secondary);
   font-size: 14px;
 }
+
+/* ============ Saved Connections ============ */
+.saved-connections {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.saved-connections select {
+  flex: 1;
+  padding: 8px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0a0a5' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 28px;
+  min-width: 0;
+}
+
+.saved-connections select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.saved-connections .btn-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.saved-connections .btn-icon:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.saved-connections .btn-icon#btn-delete-connection:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* ============ Theme Select ============ */
+#theme-select {
+  padding: 12px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0a0a5' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+#theme-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(0, 162, 255, 0.15);
+}
+
+/* ============ Custom Scrollbar ============ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.5);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
+}
+
+/* ============ Sci Fi Theme - Dark Dropdowns ============ */
+[data-theme="sci-fi"] select,
+[data-theme="sci-fi"] select option {
+  background-color: #0a0a0a;
+  color: var(--text-primary);
+}
+
+[data-theme="sci-fi"] select option {
+  background-color: #171717;
+  padding: 8px;
+}
+
+[data-theme="sci-fi"] select option:hover,
+[data-theme="sci-fi"] select option:checked {
+  background-color: rgba(34, 211, 238, 0.2);
+}
+
+/* ============ Saved Connections Management ============ */
+.connections-card {
+  margin-top: 24px;
+}
+
+.connections-table-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.connections-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.connections-table th,
+.connections-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.connections-table th {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--bg-tertiary);
+}
+
+.connections-table td {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.connections-table tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.connections-table .connection-name {
+  font-weight: 500;
+  color: var(--accent-primary);
+}
+
+.connections-table .connection-universe {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.connections-table .connection-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.connections-table .connection-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.connections-table .btn-load-connection,
+.connections-table .btn-delete-connection {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.connections-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.connections-empty svg {
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.connections-empty p {
+  font-size: 14px;
+}
+
+/* Sci Fi theme connections table styling */
+[data-theme="sci-fi"] .connections-table th {
+  background: rgba(10, 10, 10, 0.5);
+}
+
+[data-theme="sci-fi"] .connections-table tr:hover {
+  background: rgba(34, 211, 238, 0.05);
+}

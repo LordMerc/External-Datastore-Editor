@@ -1,0 +1,318 @@
+/* ============================================
+   Theme System - Roblox Cloud Manager
+   ============================================ */
+
+/* Google Fonts for Sci Fi theme */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ============ Default Theme ============ */
+/* Default theme uses the base :root variables from styles.css */
+
+/* ============ Sci Fi Theme ============ */
+[data-theme="sci-fi"] {
+  /* Floating Transparency - Grayscale Palette */
+  --base-950: #0a0a0a;
+  --base-900: #171717;
+  --base-800: #262626;
+  --base-700: #404040;
+  --base-600: #525252;
+  --base-500: #737373;
+  --base-400: #a3a3a3;
+  --base-300: #d4d4d4;
+  --base-200: #e5e5e5;
+
+  /* Accent Colors */
+  --accent-cyan: #22d3ee;
+  --accent-amber: #f59e0b;
+  --accent-emerald: #10b981;
+  --accent-rose: #f43f5e;
+  --accent-indigo: #6366f1;
+  --accent-purple: #a855f7;
+
+  /* Override base variables */
+  --bg-primary: var(--base-950);
+  --bg-secondary: var(--base-900);
+  --bg-tertiary: var(--base-800);
+  --bg-elevated: var(--base-800);
+  --bg-input: rgba(255, 255, 255, 0.05);
+
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.2);
+
+  --text-primary: #ffffff;
+  --text-secondary: var(--base-400);
+  --text-muted: var(--base-500);
+
+  --accent-primary: var(--accent-cyan);
+  --accent-hover: #06b6d4;
+  --accent-active: #0891b2;
+
+  --danger: var(--accent-rose);
+  --danger-hover: #e11d48;
+
+  --success: var(--accent-emerald);
+  --success-bg: rgba(16, 185, 129, 0.1);
+
+  --warning: var(--accent-amber);
+  --warning-bg: rgba(245, 158, 11, 0.1);
+
+  --error: var(--accent-rose);
+  --error-bg: rgba(244, 63, 94, 0.1);
+
+  /* Fonts */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+}
+
+/* Sci Fi Theme - Font overrides */
+[data-theme="sci-fi"] body {
+  font-family: var(--font-sans);
+}
+
+[data-theme="sci-fi"] .logo span {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+[data-theme="sci-fi"] .nav-item {
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+
+[data-theme="sci-fi"] .connection-status {
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+[data-theme="sci-fi"] .card-header h2 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-mono);
+}
+
+[data-theme="sci-fi"] .form-group label {
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+[data-theme="sci-fi"] input[type='text'],
+[data-theme="sci-fi"] input[type='password'],
+[data-theme="sci-fi"] textarea {
+  font-family: var(--font-mono);
+  backdrop-filter: blur(4px);
+}
+
+/* Sci Fi Theme - Sidebar glass effect */
+[data-theme="sci-fi"] .sidebar {
+  background: rgba(10, 10, 10, 0.8);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="sci-fi"] .sidebar-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="sci-fi"] .sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Sci Fi Theme - Navigation styling */
+[data-theme="sci-fi"] .nav-item {
+  border: 1px solid transparent;
+}
+
+[data-theme="sci-fi"] .nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="sci-fi"] .nav-item.active {
+  background: rgba(34, 211, 238, 0.1);
+  color: var(--accent-cyan);
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+/* Sci Fi Theme - Card/Glass Panel styling */
+[data-theme="sci-fi"] .card,
+[data-theme="sci-fi"] .glass-panel {
+  background: transparent;
+  border: none;
+  border-left: 4px solid var(--accent-cyan);
+}
+
+[data-theme="sci-fi"] .card:hover,
+[data-theme="sci-fi"] .glass-panel:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="sci-fi"] .card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: transparent;
+}
+
+/* Sci Fi Theme - Status dot glow */
+[data-theme="sci-fi"] .status-dot.connected {
+  background: var(--accent-emerald);
+  box-shadow: 0 0 10px var(--accent-emerald);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+[data-theme="sci-fi"] .status-dot.disconnected {
+  background: var(--accent-rose);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ============ Background System (Sci Fi) ============ */
+[data-theme="sci-fi"] body {
+  background: 
+    /* Subtle glow near top-center */
+    radial-gradient(
+      circle at 50% 40%, 
+      rgba(255, 255, 255, 0.08) 0%, 
+      rgba(255, 255, 255, 0.04) 20%, 
+      rgba(255, 255, 255, 0.01) 40%, 
+      transparent 60%
+    ),
+    /* Dark gradient base */
+    linear-gradient(to bottom, #171717 0%, #0a0a0a 100%);
+  background-color: #0a0a0a;
+}
+
+/* Pulsing dots overlay (only shown with Sci Fi theme) */
+.bg-dots {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image: radial-gradient(
+    circle, 
+    rgba(255, 255, 255, 0.15) 1px, 
+    transparent 1px
+  );
+  background-size: 24px 24px;
+  animation: pulse-dots 4s ease-in-out infinite;
+  display: none; /* Hidden by default */
+}
+
+[data-theme="sci-fi"] .bg-dots {
+  display: block;
+}
+
+@keyframes pulse-dots {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.3; }
+}
+
+/* Sci Fi Theme - Entries panel styling */
+[data-theme="sci-fi"] .entries-panel {
+  background: transparent;
+  border: none;
+  border-left: 4px solid var(--accent-cyan);
+}
+
+[data-theme="sci-fi"] .panel-header {
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="sci-fi"] .entries-table th {
+  background: rgba(10, 10, 10, 0.5);
+}
+
+[data-theme="sci-fi"] .entries-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Sci Fi Theme - Button styling */
+[data-theme="sci-fi"] .btn-primary {
+  background: rgba(34, 211, 238, 0.15);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  color: var(--accent-cyan);
+}
+
+[data-theme="sci-fi"] .btn-primary:hover {
+  background: rgba(34, 211, 238, 0.25);
+  border-color: rgba(34, 211, 238, 0.6);
+}
+
+[data-theme="sci-fi"] .btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="sci-fi"] .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="sci-fi"] .btn-danger {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: var(--accent-rose);
+}
+
+[data-theme="sci-fi"] .btn-danger:hover {
+  background: rgba(244, 63, 94, 0.25);
+  border-color: rgba(244, 63, 94, 0.6);
+}
+
+/* Sci Fi Theme - Datastore cards */
+[data-theme="sci-fi"] .datastore-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="sci-fi"] .datastore-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.1);
+}
+
+/* Sci Fi Theme - Modal styling */
+[data-theme="sci-fi"] .modal-content {
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+}
+
+[data-theme="sci-fi"] .modal-header {
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="sci-fi"] .modal-footer {
+  background: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Sci Fi Theme - Toast styling */
+[data-theme="sci-fi"] .toast {
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="sci-fi"] .toast.success {
+  border-left: 4px solid var(--accent-emerald);
+}
+
+[data-theme="sci-fi"] .toast.error {
+  border-left: 4px solid var(--accent-rose);
+}
+
+[data-theme="sci-fi"] .toast.warning {
+  border-left: 4px solid var(--accent-amber);
+}

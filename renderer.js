@@ -222,6 +222,19 @@ const elements = {
   // Settings
   btnResetKeybinds: document.getElementById('btn-reset-keybinds'),
   linkGithub: document.getElementById('link-github'),
+  themeSelect: document.getElementById('theme-select'),
+
+  // Saved Connections
+  connectionsDropdown: document.getElementById('connections-dropdown'),
+  btnSaveConnection: document.getElementById('btn-save-connection'),
+  btnSaveConnectionMain: document.getElementById('btn-save-connection-main'),
+  btnDeleteConnection: document.getElementById('btn-delete-connection'),
+  saveConnectionModal: document.getElementById('save-connection-modal'),
+  connectionNameInput: document.getElementById('connection-name'),
+  btnConfirmSaveConnection: document.getElementById('btn-confirm-save-connection'),
+  connectionsTbody: document.getElementById('connections-tbody'),
+  connectionsEmpty: document.getElementById('connections-empty'),
+  connectionsTable: document.getElementById('connections-table'),
 
   // Permissions
   permissionsCard: document.getElementById('permissions-card'),
@@ -351,6 +364,179 @@ function loadCredentials() {
     elements.universeIdInput.value = universeId
     state.universeId = universeId
   }
+}
+
+// ============ Theme Management ============
+
+function loadTheme() {
+  const savedTheme = localStorage.getItem('roblox_ds_theme') || 'default'
+  setTheme(savedTheme)
+}
+
+function setTheme(themeName) {
+  if (themeName === 'sci-fi') {
+    document.documentElement.setAttribute('data-theme', 'sci-fi')
+  } else {
+    document.documentElement.removeAttribute('data-theme')
+  }
+  
+  // Update dropdown if it exists
+  if (elements.themeSelect) {
+    elements.themeSelect.value = themeName
+  }
+  
+  saveTheme(themeName)
+}
+
+function saveTheme(themeName) {
+  localStorage.setItem('roblox_ds_theme', themeName)
+}
+
+// ============ Saved Connections Management ============
+
+let savedConnections = []
+
+function loadSavedConnections() {
+  try {
+    const raw = localStorage.getItem('roblox_saved_connections')
+    if (raw) {
+      savedConnections = JSON.parse(raw)
+    }
+  } catch {
+    savedConnections = []
+  }
+  renderConnectionsDropdown()
+}
+
+function saveSavedConnections() {
+  localStorage.setItem('roblox_saved_connections', JSON.stringify(savedConnections))
+}
+
+function renderConnectionsDropdown() {
+  // Render dropdown
+  if (elements.connectionsDropdown) {
+    // Keep the default option
+    elements.connectionsDropdown.innerHTML = '<option value="">-- Saved Connections --</option>'
+    
+    savedConnections.forEach((conn, index) => {
+      const option = document.createElement('option')
+      option.value = index.toString()
+      option.textContent = conn.name
+      elements.connectionsDropdown.appendChild(option)
+    })
+  }
+  
+  // Render connections table
+  if (elements.connectionsTbody) {
+    if (savedConnections.length === 0) {
+      elements.connectionsTable.style.display = 'none'
+      elements.connectionsEmpty.style.display = 'block'
+    } else {
+      elements.connectionsTable.style.display = 'table'
+      elements.connectionsEmpty.style.display = 'none'
+      
+      elements.connectionsTbody.innerHTML = savedConnections.map((conn, index) => {
+        const date = new Date(conn.createdAt)
+        const dateStr = date.toLocaleDateString()
+        return `
+          <tr data-index="${index}">
+            <td class="connection-name">${escapeHtml(conn.name)}</td>
+            <td class="connection-universe">${escapeHtml(conn.universeId)}</td>
+            <td class="connection-date">${dateStr}</td>
+            <td class="connection-actions">
+              <button class="btn btn-sm btn-primary btn-load-connection" data-index="${index}">Load</button>
+              <button class="btn btn-sm btn-danger btn-delete-connection-table" data-index="${index}">Delete</button>
+            </td>
+          </tr>
+        `
+      }).join('')
+      
+      // Add event listeners to table buttons
+      elements.connectionsTbody.querySelectorAll('.btn-load-connection').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = parseInt(btn.dataset.index, 10)
+          loadConnection(index)
+        })
+      })
+      
+      elements.connectionsTbody.querySelectorAll('.btn-delete-connection-table').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = parseInt(btn.dataset.index, 10)
+          deleteConnection(index)
+        })
+      })
+    }
+  }
+}
+
+function saveCurrentConnection(name) {
+  // Get values from inputs if state is not set
+  const apiKey = state.apiKey || elements.apiKeyInput.value.trim()
+  const universeId = state.universeId || elements.universeIdInput.value.trim()
+  
+  if (!apiKey || !universeId) {
+    showToast('error', 'Cannot Save', 'Please enter API Key and Universe ID first')
+    return false
+  }
+  
+  if (!name || !name.trim()) {
+    showToast('error', 'Cannot Save', 'Please enter a connection name')
+    return false
+  }
+  
+  // Check for duplicate names
+  const existingIndex = savedConnections.findIndex(c => c.name.toLowerCase() === name.trim().toLowerCase())
+  if (existingIndex !== -1) {
+    showToast('warning', 'Name Exists', 'A connection with this name already exists. Choose a different name.')
+    return false
+  }
+  
+  const connection = {
+    id: Date.now().toString(),
+    name: name.trim(),
+    apiKey: apiKey,
+    universeId: universeId,
+    createdAt: new Date().toISOString()
+  }
+  
+  savedConnections.push(connection)
+  saveSavedConnections()
+  renderConnectionsDropdown()
+  
+  showToast('success', 'Connection Saved', `"${connection.name}" has been saved`)
+  return true
+}
+
+function loadConnection(index) {
+  if (index < 0 || index >= savedConnections.length) return
+  
+  const conn = savedConnections[index]
+  
+  elements.apiKeyInput.value = conn.apiKey
+  elements.universeIdInput.value = conn.universeId
+  state.apiKey = conn.apiKey
+  state.universeId = conn.universeId
+  
+  // Update sidebar dropdown to show the loaded connection
+  if (elements.connectionsDropdown) {
+    elements.connectionsDropdown.value = index.toString()
+  }
+  
+  // Auto-validate the loaded connection
+  elements.btnValidate.click()
+  
+  showToast('success', 'Connection Loaded', `"${conn.name}" has been loaded`)
+}
+
+function deleteConnection(index) {
+  if (index < 0 || index >= savedConnections.length) return
+  
+  const conn = savedConnections[index]
+  savedConnections.splice(index, 1)
+  saveSavedConnections()
+  renderConnectionsDropdown()
+  
+  showToast('success', 'Connection Deleted', `"${conn.name}" has been removed`)
 }
 
 // ============ Window Controls ============
@@ -3044,6 +3230,8 @@ document.querySelectorAll('.modal-close, .modal-backdrop').forEach((el) => {
 
 document.addEventListener('DOMContentLoaded', () => {
   loadCredentials()
+  loadTheme()
+  loadSavedConnections()
   updateLineNumbers()
   updateSyntaxHighlight()
   renderMessageHistory()
@@ -3054,6 +3242,77 @@ document.addEventListener('DOMContentLoaded', () => {
   renderKeybindSettings()
   setupKeybindInputs()
   updateShortcutsModal()
+
+  // Theme selector event listener
+  if (elements.themeSelect) {
+    elements.themeSelect.addEventListener('change', (e) => {
+      setTheme(e.target.value)
+    })
+  }
+
+  // Saved Connections event listeners
+  if (elements.connectionsDropdown) {
+    elements.connectionsDropdown.addEventListener('change', (e) => {
+      const index = parseInt(e.target.value, 10)
+      if (!isNaN(index)) {
+        loadConnection(index)
+        // Keep selection visible so user sees which connection is loaded
+      }
+    })
+  }
+
+  if (elements.btnSaveConnection) {
+    elements.btnSaveConnection.addEventListener('click', () => {
+      const apiKey = state.apiKey || elements.apiKeyInput.value.trim()
+      const universeId = state.universeId || elements.universeIdInput.value.trim()
+      if (!apiKey || !universeId) {
+        showToast('warning', 'Enter Credentials', 'Please enter API Key and Universe ID first')
+        return
+      }
+      elements.connectionNameInput.value = ''
+      elements.saveConnectionModal.classList.add('active')
+      elements.connectionNameInput.focus()
+    })
+  }
+
+  // Main save connection button in form
+  if (elements.btnSaveConnectionMain) {
+    elements.btnSaveConnectionMain.addEventListener('click', () => {
+      const apiKey = state.apiKey || elements.apiKeyInput.value.trim()
+      const universeId = state.universeId || elements.universeIdInput.value.trim()
+      if (!apiKey || !universeId) {
+        showToast('warning', 'Enter Credentials', 'Please enter API Key and Universe ID first')
+        return
+      }
+      elements.connectionNameInput.value = ''
+      elements.saveConnectionModal.classList.add('active')
+      elements.connectionNameInput.focus()
+    })
+  }
+
+  if (elements.btnConfirmSaveConnection) {
+    elements.btnConfirmSaveConnection.addEventListener('click', () => {
+      const name = elements.connectionNameInput.value
+      if (saveCurrentConnection(name)) {
+        elements.saveConnectionModal.classList.remove('active')
+      }
+    })
+  }
+
+  if (elements.btnDeleteConnection) {
+    elements.btnDeleteConnection.addEventListener('click', () => {
+      const selectedValue = elements.connectionsDropdown.value
+      if (!selectedValue) {
+        showToast('warning', 'Select Connection', 'Please select a connection to delete')
+        return
+      }
+      const index = parseInt(selectedValue, 10)
+      if (!isNaN(index)) {
+        deleteConnection(index)
+        elements.connectionsDropdown.value = ''
+      }
+    })
+  }
 
   // Auto-validate if credentials exist
   if (state.apiKey && state.universeId) {
