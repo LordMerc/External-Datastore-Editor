@@ -181,10 +181,6 @@ This application uses the [Roblox Open Cloud APIs](https://create.roblox.com/doc
 
 - `POST /messaging-service/v1/universes/{universeId}/topics/{topic}` - Publish message
 
-## Screenshots
-
-_Coming soon!_
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
